@@ -33,11 +33,11 @@ public class RtspRequestHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    logger.debug("channelActive...............");
+    logger.debug("channelActive...............",ctx.channel());
   }
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    logger.debug("channelInactive...............");
+    logger.debug("channelInactive...............",ctx.channel());
   }
 }

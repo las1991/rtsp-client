@@ -8,16 +8,16 @@ import com.darkmi.server.config.ServerConfig;
 import com.darkmi.server.core.RtspController;
 
 public class Main {
-  private static Logger logger = LoggerFactory.getLogger(Main.class);
+    private static Logger logger = LoggerFactory.getLogger(Main.class);
 
-  public static void main(String[] args) {
-    AnnotationConfigApplicationContext ctx =
-        new AnnotationConfigApplicationContext(ServerConfig.class);
-    RtspController rtspController = (RtspController) ctx.getBean(RtspController.class);
-    try {
-      rtspController.start();
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext ctx =
+                new AnnotationConfigApplicationContext(ServerConfig.class);
+        RtspController rtspController = (RtspController) ctx.getBean(RtspController.class);
+        try {
+            rtspController.start();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
     }
-  }
 }

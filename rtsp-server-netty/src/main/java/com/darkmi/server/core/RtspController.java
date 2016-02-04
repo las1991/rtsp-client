@@ -133,6 +133,7 @@ public class RtspController implements RtspListener {
             Callable<HttpResponse> action = new OptionsAction(request);
             HttpResponse response = action.call();
             logger.debug("options response header =====> \n" + response);
+            logger.debug(channel.toString());
             channel.writeAndFlush(response);
         } catch (Exception e) {
             logger.error("Setup Request Handle Error.........", e);

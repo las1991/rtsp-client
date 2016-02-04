@@ -33,6 +33,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="rtsp-server" target="1.5" />
       <module name="rtsp-server-mina" target="1.6" />
       <module name="rtsp-server-netty" target="1.6" />
       <module name="rtsp-server-parent" target="1.5" />
