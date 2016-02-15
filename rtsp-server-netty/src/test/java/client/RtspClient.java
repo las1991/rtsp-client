@@ -11,8 +11,8 @@ import io.netty.handler.codec.rtsp.*;
 import org.apache.log4j.Logger;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 
 /**
@@ -38,33 +38,40 @@ public class RtspClient {
         this.inetAddress = InetAddress.getByName(this.host);
     }
 
-    public void start() throws InterruptedException {
-        InetSocketAddress bindAddress = new InetSocketAddress(this.inetAddress,
-                this.port);
+    public void start() throws InterruptedException, URISyntaxException {
         EventLoopGroup group = new NioEventLoopGroup();
-        Bootstrap b = new Bootstrap();
-        b.group(group).channel(NioSocketChannel.class);
-        b.handler(new ChannelInitializer<Channel>() {
-            @Override
-            protected void initChannel(Channel ch) throws Exception {
-                ChannelPipeline pipeline = ch.pipeline();
-                pipeline.addLast("decoder", new RtspResponseDecoder());
-                pipeline.addLast("encoder", new RtspRequestEncoder());
-                pipeline.addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 64));
-                pipeline.addLast("handler", new ResponseHandler());
+        try {
+            Bootstrap b = new Bootstrap();
+            b.group(group).channel(NioSocketChannel.class);
+            b.handler(new ChannelInitializer<Channel>() {
+                @Override
+                protected void initChannel(Channel ch) throws Exception {
+                    ChannelPipeline pipeline = ch.pipeline();
+                    pipeline.addLast("decoder", new RtspResponseDecoder());
+                    pipeline.addLast("encoder", new RtspRequestEncoder());
+                    pipeline.addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 64));
+                    pipeline.addLast("handler", new ResponseHandler());
 
+                }
+            });
+            b.option(ChannelOption.SO_KEEPALIVE, true);
+            ChannelFuture channelFutrue = b.connect(host, port).sync();
+            if (channelFutrue.isSuccess()) {
+                channel = channelFutrue.channel();
+                URI uri = new URI("rtsp://127.0.0.1:554/hello-world");
+                HttpRequest request = this.buildOptionsRequest(uri.toASCIIString());
+                this.send(request);
+                channel.closeFuture().sync();
             }
-        });
-        b.option(ChannelOption.SO_KEEPALIVE, true);
-        ChannelFuture channelFutrue=b.connect(host, port).sync();
-        if (channelFutrue.isSuccess()) {
-            channel = channelFutrue.channel();
+        } finally {
+            // 优雅退出，释放NIO线程组
+            group.shutdownGracefully();
         }
     }
 
     public void send(HttpRequest request) throws InterruptedException {
         if (channel != null) {
-            ChannelFuture future=channel.writeAndFlush(request);
+            ChannelFuture future = channel.writeAndFlush(request).sync();
         } else {
             System.out.println("消息发送失败,连接尚未建立!");
         }
@@ -74,9 +81,6 @@ public class RtspClient {
     public static void main(String[] args) throws Exception {
         RtspClient client = new RtspClient("127.0.0.1", 554);
         client.start();
-        URI uri = new URI("rtsp://127.0.0.1:554/hello-world");
-        HttpRequest request = client.buildOptionsRequest(uri.toASCIIString());
-        client.send(request);
     }
 
 
@@ -86,26 +90,26 @@ public class RtspClient {
      * @return
      */
     private HttpRequest buildDescribeRequest(String uri) {
-        DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.DESCRIBE,uri);
-        request.headers().set(RtspHeaders.Names.CSEQ, 1);
-        request.headers().add(RtspHeaders.Names.ACCEPT, "application/sdp, application/rtsl, application/mheg");
+        DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.DESCRIBE, uri);
+        request.headers().set(RtspHeaderNames.CSEQ, "1");
+        request.headers().add(RtspHeaderNames.ACCEPT, "application/sdp, application/rtsl, application/mheg");
         return request;
     }
 
     private HttpRequest buildOptionsRequest(String uri) {
-        DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.OPTIONS,uri);
-        request.headers().set(RtspHeaders.Names.CSEQ, 1);
-        request.headers().set(RtspHeaders.Names.REQUIRE,"implicit-play");
-        request.headers().set(RtspHeaders.Names.PROXY_REQUIRE,"gzipped-messages");
+        DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.OPTIONS, uri);
+        request.headers().set(RtspHeaderNames.CSEQ, "1");
+        request.headers().set(RtspHeaderNames.REQUIRE, "implicit-play");
+        request.headers().set(RtspHeaderNames.PROXY_REQUIRE, "gzipped-messages");
         return request;
     }
 
     private HttpRequest buildAnnounceRequest(String uri) {
-        HttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.ANNOUNCE,uri);
-        request.headers().set(RtspHeaders.Names.CSEQ, 2);
-        request.headers().set(RtspHeaders.Names.SESSION, 1234567);
-        request.headers().add(RtspHeaders.Names.CONTENT_TYPE, "application/sdp");
-        request.headers().add(RtspHeaders.Names.CONTENT_LENGTH, 123);
+        HttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.ANNOUNCE, uri);
+        request.headers().set(RtspHeaderNames.CSEQ, "1");
+        request.headers().set(RtspHeaderNames.SESSION, "1234567");
+        request.headers().add(RtspHeaderNames.CONTENT_TYPE, "application/sdp");
+        request.headers().add(RtspHeaderNames.CONTENT_LENGTH, "123");
 //        request.setContent(null);
         return request;
     }
@@ -118,8 +122,8 @@ public class RtspClient {
     private HttpRequest buildSetupRequest(String uri) {
         HttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.SETUP,
                 uri);
-        request.headers().set(RtspHeaders.Names.CSEQ, 3);
-        request.headers().add(RtspHeaders.Names.TRANSPORT, "RTP/AVP;unicast;client_port=4588-4589");
+        request.headers().set(RtspHeaderNames.CSEQ, "3");
+        request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP;unicast;client_port=4588-4589");
 
         return request;
     }
@@ -130,10 +134,10 @@ public class RtspClient {
      * @return
      */
     private HttpRequest buildPlayRequest(String uri) {
-        HttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.PLAY,uri);
-        request.headers().set(RtspHeaders.Names.CSEQ, 4);
-        request.headers().set(RtspHeaders.Names.SESSION, 1234567);
-        request.headers().add(RtspHeaders.Names.RANGE, "npt=10-15");
+        HttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.PLAY, uri);
+        request.headers().set(RtspHeaderNames.CSEQ, "4");
+        request.headers().set(RtspHeaderNames.SESSION, "1234567");
+        request.headers().add(RtspHeaderNames.RANGE, "npt=10-15");
 
         return request;
     }
@@ -144,9 +148,9 @@ public class RtspClient {
      * @return
      */
     private HttpRequest buildPauseRequest(String uri) {
-        HttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.PAUSE,uri);
-        request.headers().set(RtspHeaders.Names.CSEQ, 5);
-        request.headers().set(RtspHeaders.Names.SESSION, 1234567);
+        HttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.PAUSE, uri);
+        request.headers().set(RtspHeaderNames.CSEQ, "5");
+        request.headers().set(RtspHeaderNames.SESSION, "1234567");
 
         return request;
     }
@@ -157,9 +161,9 @@ public class RtspClient {
      * @return
      */
     private HttpRequest buildTeardownRequest(String uri) {
-        HttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.TEARDOWN,uri);
-        request.headers().set(RtspHeaders.Names.CSEQ, 6);
-        request.headers().set(RtspHeaders.Names.SESSION, 1234567);
+        HttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.TEARDOWN, uri);
+        request.headers().set(RtspHeaderNames.CSEQ, "6");
+        request.headers().set(RtspHeaderNames.SESSION, "1234567");
         return request;
     }
 

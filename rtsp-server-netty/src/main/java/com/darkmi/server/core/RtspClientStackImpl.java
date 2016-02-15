@@ -2,12 +2,12 @@ package com.darkmi.server.core;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,26 +17,31 @@ public class RtspClientStackImpl implements RtspStack {
     private int port;
     private Bootstrap rtspClient;
     private RtspListener listener = null;
+    private Channel channel;
 
-    // public static Channel channel = null;
-
-    public RtspClientStackImpl() {
+    public RtspClientStackImpl(String ip,int port) {
+        this.ip = ip;
+        this.port = port;
     }
 
     public void start() {
-        EventLoopGroup group = new NioEventLoopGroup();
-        rtspClient = new Bootstrap();
-        rtspClient.group(group).channel(NioSocketChannel.class);
-        rtspClient.handler(new RtspClientInitializer(this).get());
-        // rtspClient.option(ChannelOption.SO_KEEPALIVE, true);
+        if(rtspClient==null){
+            EventLoopGroup group = new NioEventLoopGroup();
+            rtspClient = new Bootstrap();
+            rtspClient.group(group).channel(NioSocketChannel.class);
+            rtspClient.handler(new RtspClientInitializer(this).get());
+            rtspClient.option(ChannelOption.SO_KEEPALIVE, true);
+        }
+        channel = connect(this.ip, this.port);
     }
 
     public void stop() {
-        // ChannelFuture cf = channel.getCloseFuture();
-        // cf.addListener(new ClientChannelFutureListener());
-        // channel.close();
-        // cf.awaitUninterruptibly();
-        // bootstrap.getFactory().releaseExternalResources();
+        // Wait for the server to close the connection.
+        try {
+            channel.closeFuture().sync();
+        } catch (InterruptedException e) {
+            logger.error(String.format("连接Server(IP[%s],PORT[%s])失败", this.ip, this.port), e);
+        }
 
     }
 
@@ -54,7 +59,6 @@ public class RtspClientStackImpl implements RtspStack {
 
     public void sendRequest(HttpRequest rtspRequest, String host, int port) {
         logger.debug("send Request { ...");
-        Channel channel = connect(host, port);
         if (channel != null) {
             try {
                 channel.writeAndFlush(rtspRequest).sync();
@@ -65,21 +69,14 @@ public class RtspClientStackImpl implements RtspStack {
             logger.warn("消息发送失败,连接尚未建立!");
         }
         logger.debug("send Request ... } ");
-
-        // Wait for the server to close the connection.
-        // try {
-        // channel.closeFuture().sync();
-        // } catch (InterruptedException e) {
-        // logger.error(String.format("连接Server(IP[%s],PORT[%s])失败", host, port), e);
-        // }
     }
 
-    private Channel connect(String ip, int port) {
+    private Channel connect(String host, int port) {
         Channel ch = null;
         try {
-            ch = rtspClient.connect(ip, port).sync().channel();
+            ch = rtspClient.connect(host, port).sync().channel();
         } catch (Exception e) {
-            logger.error(String.format("连接Server(IP[%s],PORT[%s])失败", ip, port), e);
+            logger.error(String.format("连接Server(IP[%s],PORT[%s])失败", host, port), e);
         }
         return ch;
     }

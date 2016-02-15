@@ -43,19 +43,19 @@ public class RtspController implements RtspListener {
 
     @Override
     public void onRtspRequest(HttpRequest request, Channel channel) {
-        logger.debug("Receive rtspRequest ==> \n " + request.getMethod());
+        logger.debug("Receive rtspRequest ==> \n " + request.method());
         try {
-            if (request.getMethod().equals(RtspMethods.SETUP)) {
+            if (request.method().equals(RtspMethods.SETUP)) {
                 onSetupRequest(request, channel);
-            } else if (request.getMethod().equals(RtspMethods.PLAY)) {
+            } else if (request.method().equals(RtspMethods.PLAY)) {
                 onPlayRequest(request, channel);
-            } else if (request.getMethod().equals(RtspMethods.PAUSE)) {
+            } else if (request.method().equals(RtspMethods.PAUSE)) {
                 onPauseRequest(request, channel);
-            } else if (request.getMethod().equals(RtspMethods.GET_PARAMETER)) {
+            } else if (request.method().equals(RtspMethods.GET_PARAMETER)) {
                 onGetParameterRequest(request, channel);
-            } else if (request.getMethod().equals(RtspMethods.TEARDOWN)) {
+            } else if (request.method().equals(RtspMethods.TEARDOWN)) {
                 onTeardownRequest(request, channel);
-            } else if (request.getMethod().equals(RtspMethods.OPTIONS)) {
+            } else if (request.method().equals(RtspMethods.OPTIONS)) {
                 onOptionRequest(request, channel);
             }
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class RtspController implements RtspListener {
 
     private void onSetupRequest(HttpRequest request, Channel channel) {
         try {
-            Callable<FullHttpResponse> action = new SetupAction(serverConfig, request);
+            Callable<FullHttpResponse> action = new SetupResponse(serverConfig, request);
             FullHttpResponse setupResponse = action.call();
 
             logger.debug("setup response header =====> \n" + setupResponse);
@@ -79,7 +79,7 @@ public class RtspController implements RtspListener {
 
     private void onPlayRequest(HttpRequest request, Channel channel) {
         try {
-            Callable<HttpResponse> action = new PlayAction(request);
+            Callable<HttpResponse> action = new PlayResponse(request);
             HttpResponse playResponse = action.call();
             logger.debug("play response =====> \n" + playResponse);
             channel.writeAndFlush(playResponse);
@@ -90,7 +90,7 @@ public class RtspController implements RtspListener {
 
     private void onPauseRequest(HttpRequest request, Channel channel) {
         try {
-            Callable<HttpResponse> responseAction = new PauseAction(request);
+            Callable<HttpResponse> responseAction = new PauseResponse(request);
             HttpResponse pauseResponse = responseAction.call();
             logger.debug("pause response header =====> \n" + pauseResponse);
 
@@ -108,7 +108,7 @@ public class RtspController implements RtspListener {
 
     private void onGetParameterRequest(HttpRequest request, Channel channel) {
         try {
-            Callable<HttpResponse> action = new GetParameterAction(request);
+            Callable<HttpResponse> action = new GetParameterResponse(request);
             HttpResponse response = action.call();
             logger.debug("get_parameter response =====> \n" + response);
             channel.writeAndFlush(response);
@@ -119,7 +119,7 @@ public class RtspController implements RtspListener {
 
     private void onTeardownRequest(HttpRequest request, Channel channel) {
         try {
-            Callable<HttpResponse> action = new TeardownAction(request);
+            Callable<HttpResponse> action = new TeardownResponse(request);
             HttpResponse response = action.call();
             logger.debug("teardown response =====> \n" + response);
             channel.writeAndFlush(response);
@@ -130,7 +130,7 @@ public class RtspController implements RtspListener {
 
     private void onOptionRequest(HttpRequest request, Channel channel) {
         try {
-            Callable<HttpResponse> action = new OptionsAction(request);
+            Callable<HttpResponse> action = new OptionsResponse(request);
             HttpResponse response = action.call();
             logger.debug("options response header =====> \n" + response);
             logger.debug(channel.toString());
