@@ -1,11 +1,10 @@
 package com.darkmi.server;
 
+import com.darkmi.server.config.ServerConfig;
+import com.darkmi.server.core.RtspController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import com.darkmi.server.config.ServerConfig;
-import com.darkmi.server.core.RtspController;
 
 public class Main {
     private static Logger logger = LoggerFactory.getLogger(Main.class);
@@ -20,4 +19,5 @@ public class Main {
             logger.error(e.getMessage(), e);
         }
     }
+
 }
