@@ -4,6 +4,7 @@ import cn.las.client.Client;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
+import io.netty.handler.codec.rtsp.RtspHeaderValues;
 import io.netty.handler.codec.rtsp.RtspMethods;
 import io.netty.handler.codec.rtsp.RtspVersions;
 
@@ -26,8 +27,8 @@ public class DescribeRequest implements Callable<HttpRequest> {
     public HttpRequest call() throws Exception {
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.DESCRIBE, client.getUrl());
         request.headers().add(RtspHeaderNames.CSEQ,client.getCseq().toString());
-        client.setStatus(RtspMethods.DESCRIBE);
-        client.setCseq(client.getCseq()+1);
+        request.headers().add(RtspHeaderNames.USER_AGENT,client.getUserAgent());
+        request.headers().add(RtspHeaderNames.ACCEPT, "application/sdp");
         return  request;
     }
 

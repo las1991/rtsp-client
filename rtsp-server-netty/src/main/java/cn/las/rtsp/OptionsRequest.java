@@ -27,8 +27,6 @@ public class OptionsRequest implements Callable<HttpRequest> {
     public HttpRequest call() throws Exception {
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.OPTIONS, client.getUrl());
         request.headers().add(RtspHeaderNames.CSEQ, client.getCseq().toString());
-        client.setStatus(RtspMethods.OPTIONS);
-        client.setCseq(client.getCseq()+1);
         return request;
     }
 }

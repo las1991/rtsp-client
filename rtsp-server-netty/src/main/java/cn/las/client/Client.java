@@ -7,10 +7,12 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspRequestEncoder;
 import io.netty.handler.codec.rtsp.RtspResponseDecoder;
 
+import java.net.SocketAddress;
 import java.net.URI;
 
 /**
@@ -25,6 +27,8 @@ public class Client {
     private ChannelFuture future;
     private String url;
     private HttpMethod status;
+    private String session;
+    private String userAgent = "LibVLC/2.2.2 (LIVE555 Streaming Media v2016.01.12)";
 
     private Integer cseq = 1;
 
@@ -44,16 +48,15 @@ public class Client {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast("decoder", new RtspResponseDecoder());
                             pipeline.addLast("encoder", new RtspRequestEncoder());
+                            pipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
                             pipeline.addLast("handler", new RtspClientHandler());
                         }
                     }).option(ChannelOption.SO_KEEPALIVE, true);
 
-            this.future = bootstrap.connect(uri.getHost(), uri.getPort());
+            this.future = bootstrap.connect(uri.getHost(), uri.getPort()).sync();
             this.channel = future.channel();
             ClientManager.put(this.channel.id().asLongText(), this);
             OptionsRequest request = new OptionsRequest(this);
-            HttpRequest req=request.call();
-            System.out.println(req);
             this.channel.writeAndFlush(request.call());
             this.channel.closeFuture().sync();
         } finally {
@@ -100,4 +103,21 @@ public class Client {
     public void setCseq(Integer cseq) {
         this.cseq = cseq;
     }
+
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
 }

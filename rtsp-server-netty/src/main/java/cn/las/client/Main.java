@@ -8,7 +8,7 @@ package cn.las.client;
  */
 public class Main {
     public static void main(String[] args) {
-        String url = "rtsp://54.222.135.41:554/4FE2A3AE23D4C959419186930DC9CE98.sdp";
+        String url = "rtsp://54.222.135.41:554/FFC47B3CE72E275DD09C32B1AC4A9E72.sdp";
         try {
             Client client = new Client(url);
             client.start();
