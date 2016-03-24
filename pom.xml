@@ -23,6 +23,23 @@
 
 
     <dependencies>
+        <!--mp4parser-->
+        <dependency>
+            <groupId>org.mp4parser</groupId>
+            <artifactId>isoparser</artifactId>
+            <version>1.9.27</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mp4parser</groupId>
+            <artifactId>streaming</artifactId>
+            <version>1.9.27</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mp4parser</groupId>
+            <artifactId>muxer</artifactId>
+            <version>1.9.27</version>
+        </dependency>
+
         <!-- spring begin -->
         <dependency>
             <groupId>org.springframework</groupId>

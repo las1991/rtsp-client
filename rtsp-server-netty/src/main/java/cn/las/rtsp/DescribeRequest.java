@@ -1,10 +1,9 @@
 package cn.las.rtsp;
 
-import cn.las.client.Client;
+import cn.las.client.AbstractClient;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
-import io.netty.handler.codec.rtsp.RtspHeaderValues;
 import io.netty.handler.codec.rtsp.RtspMethods;
 import io.netty.handler.codec.rtsp.RtspVersions;
 
@@ -17,9 +16,9 @@ import java.util.concurrent.Callable;
  * @CreateDate：2016/3/22
  */
 public class DescribeRequest implements Callable<HttpRequest> {
-    private Client client;
+    private AbstractClient client;
 
-    public DescribeRequest(Client client) {
+    public DescribeRequest(AbstractClient client) {
         this.client = client;
     }
 

@@ -1,6 +1,6 @@
 package cn.las.rtsp;
 
-import cn.las.client.Client;
+import cn.las.client.AbstractClient;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
@@ -17,9 +17,9 @@ import java.util.concurrent.Callable;
  */
 public class OptionsRequest implements Callable<HttpRequest> {
 
-    private Client client;
+    private AbstractClient client;
 
-    public OptionsRequest(Client client) {
+    public OptionsRequest(AbstractClient client) {
         this.client = client;
     }
 

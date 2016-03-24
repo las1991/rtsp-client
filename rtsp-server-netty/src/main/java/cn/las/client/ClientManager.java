@@ -13,13 +13,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ClientManager {
     private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private static Map<String, Client> clientMap = new HashMap<>();
+    private static Map<String, AbstractClient> clientMap = new HashMap<>();
 
-    public static Map<String, Client> getClientMap() {
+    public static Map<String, AbstractClient> getClientMap() {
         return clientMap;
     }
 
-    public static void put(String channelId, Client client) {
+    public static void put(String channelId, AbstractClient client) {
         lock.writeLock().lock();
         try {
             clientMap.put(channelId, client);
@@ -37,7 +37,7 @@ public class ClientManager {
         }
     }
 
-    public static Client get(String key) {
+    public static AbstractClient get(String key) {
         lock.readLock().lock();
         try {
             return clientMap.get(key);

@@ -10,7 +10,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: io.netty:netty-all:5.0.0.Alpha2" level="project" />
+    <orderEntry type="library" name="Maven: org.mp4parser:isoparser:1.9.27" level="project" />
+    <orderEntry type="library" name="Maven: org.mp4parser:streaming:1.9.27" level="project" />
+    <orderEntry type="library" name="Maven: org.mp4parser:muxer:1.9.27" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:3.1.2.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-asm:3.1.2.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-beans:3.1.2.RELEASE" level="project" />

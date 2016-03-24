@@ -1,0 +1,22 @@
+v=0
+o=- 956018329 956018329 IN IP4 127.0.0.1
+s=liveSengledIPC
+i=LIVE555 Streaming M
+edia
+c=IN IP4 0.0.0.0
+t=0 0
+a=x-qt-text-nam:54.222.135.41
+a=x-qt-text-inf:liveSengledIPC
+a=x-qt-text-cmt:source application:LIVE555 Streaming Media
+a=x-qt-text-aut:DarwinInjector
+a=x-qt-text-cpy:
+a=control:*
+m=video 0 RTP/AVP 97
+a=3GPP-Adaptation-Support:1
+a=rtpmap:97 H264/90000
+a=control:trackID=1
+a=codecpts:1
+m=audio 0 RTP/AVP 8
+a=3GPP-Adaptation-Support:1
+a=ptime:20
+a=control:trackID=2

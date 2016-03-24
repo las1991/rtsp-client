@@ -1,8 +1,7 @@
 package cn.las.rtsp;
 
-import cn.las.client.Client;
+import cn.las.client.AbstractClient;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
 import io.netty.handler.codec.rtsp.RtspMethods;
@@ -18,10 +17,10 @@ import java.util.concurrent.Callable;
  * @CreateDate：2016/3/22
  */
 public class SetUpRequest implements Callable<HttpRequest> {
-    private Client client;
+    private AbstractClient client;
     private Integer trackID;
 
-    public SetUpRequest(Client client, Integer trackID) {
+    public SetUpRequest(AbstractClient client, Integer trackID) {
         this.client = client;
         this.trackID = trackID;
     }
@@ -36,8 +35,10 @@ public class SetUpRequest implements Callable<HttpRequest> {
         if(StringUtils.isNotEmpty(client.getSession())){
             request.headers().add(RtspHeaderNames.SESSION,client.getSession());
         }
-        request.headers().add(RtspHeaderNames.USER_AGENT,"LibVLC/2.2.2 (LIVE555 Streaming Media v2016.01.12)");
-        request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP;unicast;client_port="+client.getChannel().localAddress().toString().split(":")[1]);
+        request.headers().add(RtspHeaderNames.USER_AGENT,client.getUserAgent());
+        request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;");//tcp
+        //udp
+        //request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP;unicast;client_port="+client.getChannel().localAddress().toString().split(":")[1]);
         return request;
     }
 }
