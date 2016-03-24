@@ -1,7 +1,10 @@
 package cn.las.client.Handler;
 
 import cn.las.client.AbstractClient;
+import cn.las.client.Client;
 import cn.las.client.ClientManager;
+import cn.las.client.ClientPush;
+import cn.las.mp4parser.H264Sample;
 import cn.las.rtsp.DescribeRequest;
 import cn.las.rtsp.OptionsRequest;
 import cn.las.rtsp.PlayRequest;
@@ -19,6 +22,8 @@ import io.netty.handler.codec.rtsp.RtspMethods;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -28,6 +33,8 @@ import java.util.concurrent.Callable;
  * @CreateDate：2016/3/22
  */
 public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
+
+    private volatile ScheduledFuture<?> pushRtp;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -64,6 +71,11 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                 }
 
             } else if (client.getStatus().equals(RtspMethods.PLAY)) {
+                if(client instanceof ClientPush){
+                    pushRtp = ctx.executor().scheduleAtFixedRate(
+                            new RtspClientHandler.PushRtpTask(ctx), 0, 40,
+                            TimeUnit.MILLISECONDS);
+                }
 //                request = new DescribeRequest(client);
 
             } else if (client.getStatus().equals(RtspMethods.PAUSE)) {
@@ -86,6 +98,19 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
+    }
+
+    private class PushRtpTask implements Runnable {
+        private final ChannelHandlerContext ctx;
+
+        public PushRtpTask(final ChannelHandlerContext ctx) {
+            this.ctx = ctx;
+        }
+
+        @Override
+        public void run() {
+            ctx.writeAndFlush(H264Sample.getSample());
+        }
     }
 
 }
