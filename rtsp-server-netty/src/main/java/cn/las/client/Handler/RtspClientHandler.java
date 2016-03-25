@@ -1,7 +1,6 @@
 package cn.las.client.Handler;
 
 import cn.las.client.AbstractClient;
-import cn.las.client.Client;
 import cn.las.client.ClientManager;
 import cn.las.client.ClientPush;
 import cn.las.mp4parser.H264Sample;
@@ -20,6 +19,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
 import io.netty.handler.codec.rtsp.RtspMethods;
 import org.apache.commons.lang.StringUtils;
+import org.mp4parser.muxer.Sample;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
@@ -109,6 +109,9 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
 
         @Override
         public void run() {
+            Sample sample=H264Sample.getSample();
+
+
             ctx.writeAndFlush(H264Sample.getSample());
         }
     }

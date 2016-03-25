@@ -31,7 +31,8 @@ public class H264Sample {
 
     static {
         try {
-            isoFile = new IsoFile("test.mp4");
+            String file="C:\\Users\\andy\\Desktop\\380988eb-8c12-491d-a238-09437414fdce.mp4";
+            isoFile = new IsoFile(file);
             trackBoxes.add((TrackBox) Path.getPath(isoFile, "moov/trak/"));
             long trackId = -1;
             TrackBox trackBox = null;
@@ -42,8 +43,9 @@ public class H264Sample {
                 }
             }
             samples = new SampleList(trackId, isoFile, new FileRandomAccessSourceImpl(
-                    new RandomAccessFile("test.mp4", "r")));
+                    new RandomAccessFile(file, "r")));
             lengthSize = ((AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC")).getLengthSizeMinusOne() + 1;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
