@@ -9,7 +9,19 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.rtsp.RtspRequestEncoder;
 import io.netty.handler.codec.rtsp.RtspResponseDecoder;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @version 1.0
@@ -19,24 +31,52 @@ import io.netty.handler.stream.ChunkedWriteHandler;
  */
 public class ClientPush extends AbstractClient {
 
+    private final static String PROTOCOL = "TLS";
+    private final static String CLIENT_KEY_STORE = "";
+    private final static String CLIENT_KEY_STORE_PASSWORD = "";
+    private final static String CLIENT_TRUST_KEY_STORE = "F:\\workspaces\\rtsp-server\\rtsp-server-netty\\src\\main\\java\\cn\\las\\client\\clientTruststore.jks";
+    private final static String CLIENT_TRUST_KEY_STORE_PASSWORD = "123456";
+
     public ClientPush(String url) {
-        this.userAgent = "LibVLC/2.2.2 (LIVE555 Streaming Media v2016.01.12)";
+        this.userAgent = "DarwinInjector (LIVE555 Streaming Media v2014.07.25)";
         this.cseq = 1;
         this.url = url;
+        try {
+            URI uri = new URI(this.url);
+            this.host=uri.getHost();
+            this.port=1554;
+        } catch (URISyntaxException e) {
+        }
     }
 
     @Override
     public ChannelHandler getHandler() {
+
+
         return new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
+                InputStream in;
+                SSLContext clientContext;
+                KeyStore tks2 = KeyStore.getInstance("JKS");
+                tks2.load(new FileInputStream(CLIENT_TRUST_KEY_STORE), CLIENT_TRUST_KEY_STORE_PASSWORD.toCharArray());
+                // Set up key manager factory to use our key store
+                TrustManagerFactory tmf2 = TrustManagerFactory.getInstance("SunX509");
+                tmf2.init(tks2);
+                clientContext = SSLContext.getInstance(PROTOCOL);
+                clientContext.init(null, tmf2.getTrustManagers(), null);
+                SSLEngine engine = clientContext.createSSLEngine();
+                engine.setUseClientMode(true);
+
                 ChannelPipeline pipeline = ch.pipeline();
+                pipeline.addLast("ssl", new SslHandler(engine));
                 pipeline.addLast("decoder", new RtspResponseDecoder());
                 pipeline.addLast("rtsp-encoder", new RtspRequestEncoder());
                 pipeline.addLast("rtp-encoder", new RtpEncoder());
                 pipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
                 pipeline.addLast("chunk", new ChunkedWriteHandler());
                 pipeline.addLast("handler", new RtspClientHandler());
+
             }
         };
     }

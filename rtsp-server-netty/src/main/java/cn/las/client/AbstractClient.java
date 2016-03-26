@@ -9,6 +9,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.rtsp.RtspMethods;
 
 import java.net.URI;
 import java.util.Properties;
@@ -21,6 +22,8 @@ import java.util.Properties;
  */
 public abstract class AbstractClient implements Client{
 
+    protected String host;
+    protected Integer port;
     protected Channel channel;
     protected ChannelFuture future;
     protected String url;
@@ -34,14 +37,14 @@ public abstract class AbstractClient implements Client{
     public void start() throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
-            URI uri = new URI(this.url);
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group).channel(NioSocketChannel.class)
                     .handler(this.getHandler()).option(ChannelOption.SO_KEEPALIVE, true);
-            this.future = bootstrap.connect(uri.getHost(), uri.getPort()).sync();
+            this.future = bootstrap.connect(this.host, this.port).sync();
             this.channel = future.channel();
             ClientManager.put(this.channel.id().asLongText(), this);
             OptionsRequest request = new OptionsRequest(this);
+            this.status= RtspMethods.OPTIONS;
             this.channel.writeAndFlush(request.call());
             this.channel.closeFuture().sync();
         } finally {
@@ -111,5 +114,21 @@ public abstract class AbstractClient implements Client{
 
     public void setSdp(Properties sdp) {
         this.sdp = sdp;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
     }
 }

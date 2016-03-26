@@ -1,6 +1,7 @@
 package cn.las.rtsp;
 
 import cn.las.client.AbstractClient;
+import cn.las.client.ClientPush;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
@@ -36,9 +37,17 @@ public class SetUpRequest implements Callable<HttpRequest> {
             request.headers().add(RtspHeaderNames.SESSION,client.getSession());
         }
         request.headers().add(RtspHeaderNames.USER_AGENT,client.getUserAgent());
-        request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;");//tcp
-        //udp
-        //request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP;unicast;client_port="+client.getChannel().localAddress().toString().split(":")[1]);
+        if(client instanceof ClientPush){
+            if(trackID==1){
+                request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;mode=receive;interleaved=0-1");
+            }else {
+                request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;mode=receive;interleaved=2-3");
+            }
+        }else {
+            request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;");//tcp
+            //udp
+            //request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP;unicast;client_port="+client.getChannel().localAddress().toString().split(":")[1]);
+        }
         return request;
     }
 }

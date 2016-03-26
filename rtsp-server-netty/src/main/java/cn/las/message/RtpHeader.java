@@ -11,7 +11,7 @@ public class RtpHeader {
     private int cc=0;//1111 0000
 
     private int m=1;//0111 1111
-    private int pt=96;//1000 0000
+    private int pt=97;//1000 0000
 
     /**
      * sequnce number
@@ -22,6 +22,17 @@ public class RtpHeader {
 
     private long ssrc;
 
+    public RtpHeader(int v, int p, int x, int cc, int m, int pt, int seq, long timestamp, long ssrc) {
+        this.v = v;
+        this.p = p;
+        this.x = x;
+        this.cc = cc;
+        this.m = m;
+        this.pt = pt;
+        this.seq = seq;
+        this.timestamp = timestamp;
+        this.ssrc = ssrc;
+    }
 
     private byte[] getRtpHeader(){
         byte[] b=new byte[12];

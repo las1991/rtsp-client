@@ -11,6 +11,9 @@ import io.netty.handler.codec.rtsp.RtspRequestEncoder;
 import io.netty.handler.codec.rtsp.RtspResponseDecoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  * @version 1.0
  * @Description
@@ -23,6 +26,12 @@ public class ClientPull extends AbstractClient {
         this.userAgent="LibVLC/2.2.2 (LIVE555 Streaming Media v2016.01.12)";
         this.cseq=1;
         this.url = url;
+        try {
+            URI uri = new URI(this.url);
+            this.host=uri.getHost();
+            this.port=uri.getPort();
+        } catch (URISyntaxException e) {
+        }
     }
 
     @Override

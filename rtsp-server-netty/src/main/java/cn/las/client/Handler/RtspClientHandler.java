@@ -2,12 +2,12 @@ package cn.las.client.Handler;
 
 import cn.las.client.AbstractClient;
 import cn.las.client.ClientManager;
+import cn.las.client.ClientPull;
 import cn.las.client.ClientPush;
+import cn.las.message.RtpPackage;
 import cn.las.mp4parser.H264Sample;
-import cn.las.rtsp.DescribeRequest;
-import cn.las.rtsp.OptionsRequest;
-import cn.las.rtsp.PlayRequest;
-import cn.las.rtsp.SetUpRequest;
+import cn.las.rtp.RtpPacketizer;
+import cn.las.rtsp.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelFuture;
@@ -21,6 +21,7 @@ import io.netty.handler.codec.rtsp.RtspMethods;
 import org.apache.commons.lang.StringUtils;
 import org.mp4parser.muxer.Sample;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +44,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, FullHttpResponse rep) throws Exception {
+        System.out.println(rep);
         if (rep.status().equals(HttpResponseStatus.OK)) {
             AbstractClient client = ClientManager.get(ctx.channel().id().asLongText());
             Callable<HttpRequest> request = null;
@@ -51,10 +53,15 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                 client.setStatus(RtspMethods.OPTIONS);
 
             } else if (client.getStatus().equals(RtspMethods.OPTIONS)) {
-                request = new DescribeRequest(client);
-                client.setStatus(RtspMethods.DESCRIBE);
-
-            } else if (client.getStatus().equals(RtspMethods.DESCRIBE)) {
+                if(client instanceof ClientPush){
+                    request = new AnnounceRequest(client);
+                    client.setStatus(RtspMethods.ANNOUNCE);
+                }else {
+                    request = new DescribeRequest(client);
+                    client.setStatus(RtspMethods.DESCRIBE);
+                }
+            } else if (client.getStatus().equals(RtspMethods.DESCRIBE)
+                    ||client.getStatus().equals(RtspMethods.ANNOUNCE)) {
                 ByteBuf buf = rep.content();
                 client.getSdp().load(new ByteBufInputStream(buf));
                 request = new SetUpRequest(client, 1);
@@ -88,6 +95,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
             if (request != null) {
                 client.setCseq(client.getCseq() + 1);
                 HttpRequest req = request.call();
+                System.out.println(req);
                 ChannelFuture future = ctx.writeAndFlush(req);
             }
         }
@@ -110,9 +118,12 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
         @Override
         public void run() {
             Sample sample=H264Sample.getSample();
-
-
-            ctx.writeAndFlush(H264Sample.getSample());
+            long timestamp=1l;
+            int seq=1;
+            List<RtpPackage> packages= RtpPacketizer.getRtpPackages(sample,timestamp,seq);
+            for (RtpPackage rtpPackage:packages){
+                ctx.writeAndFlush(H264Sample.getSample());
+            }
         }
     }
 
