@@ -64,14 +64,14 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                     ||client.getStatus().equals(RtspMethods.ANNOUNCE)) {
                 ByteBuf buf = rep.content();
                 client.getSdp().load(new ByteBufInputStream(buf));
-                request = new SetUpRequest(client, 1);
+                request = new SetUpRequest(client, 0);
                 client.setStatus(RtspMethods.SETUP);
 
             } else if (client.getStatus().equals(RtspMethods.SETUP)) {
                 if (StringUtils.isEmpty(client.getSession())) {
                     client.setSession(rep.headers().get(RtspHeaderNames.SESSION).toString());
                     System.out.println("session : " + client.getSession());
-                    request = new SetUpRequest(client, 2);
+                    request = new SetUpRequest(client, 1);
                 } else {
                     request = new PlayRequest(client);
                     client.setStatus(RtspMethods.PLAY);

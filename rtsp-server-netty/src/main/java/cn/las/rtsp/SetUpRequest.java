@@ -38,7 +38,7 @@ public class SetUpRequest implements Callable<HttpRequest> {
         }
         request.headers().add(RtspHeaderNames.USER_AGENT,client.getUserAgent());
         if(client instanceof ClientPush){
-            if(trackID==1){
+            if(trackID==0){
                 request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;mode=receive;interleaved=0-1");
             }else {
                 request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;mode=receive;interleaved=2-3");
