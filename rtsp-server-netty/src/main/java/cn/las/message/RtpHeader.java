@@ -18,7 +18,7 @@ public class RtpHeader {
      */
     private int seq;
 
-    private long timestamp=3823918914l;
+    private long timestamp;
 
     private long ssrc;
 
@@ -34,7 +34,7 @@ public class RtpHeader {
         this.ssrc = ssrc;
     }
 
-    private byte[] getRtpHeader(){
+    public byte[] getRtpHeader(){
         byte[] b=new byte[12];
         b[0]=(byte)((v<<6)+(p<<5)+(x<<4)+(cc));
         b[1]=(byte)((m<<7)+pt);

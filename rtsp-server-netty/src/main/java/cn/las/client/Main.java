@@ -28,7 +28,7 @@ public class Main {
      CADB3DC52D3A14170503EE0F9645326F
      */
     public static void main(String[] args) {
-        String url = "rtsp://54.222.135.41:554/ABE801222C0E9F722A0587480EE7E642.sdp";
+        String url = "rtsp://54.223.242.201:554/1.sdp";
         try {
             AbstractClient client = new ClientPush(url);
             client.start();

@@ -9,10 +9,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.rtsp.RtspRequestEncoder;
 import io.netty.handler.codec.rtsp.RtspResponseDecoder;
-import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManagerFactory;
@@ -21,7 +19,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @version 1.0
@@ -31,10 +28,13 @@ import java.security.NoSuchAlgorithmException;
  */
 public class ClientPush extends AbstractClient {
 
+    private long timestamp;
+    private int seq;
+
     private final static String PROTOCOL = "TLS";
     private final static String CLIENT_KEY_STORE = "";
     private final static String CLIENT_KEY_STORE_PASSWORD = "";
-    private final static String CLIENT_TRUST_KEY_STORE = "F:\\workspaces\\rtsp-server\\rtsp-server-netty\\src\\main\\java\\cn\\las\\client\\clientTruststore.jks";
+    private final static String CLIENT_TRUST_KEY_STORE = "E:\\workspace_inteliJ\\rtsp-server\\rtsp-server-netty\\src\\main\\java\\cn\\las\\client\\clientTruststore.jks";
     private final static String CLIENT_TRUST_KEY_STORE_PASSWORD = "123456";
 
     public ClientPush(String url) {
@@ -44,7 +44,7 @@ public class ClientPush extends AbstractClient {
         try {
             URI uri = new URI(this.url);
             this.host=uri.getHost();
-            this.port=1554;
+            this.port=554;
         } catch (URISyntaxException e) {
         }
     }
@@ -69,7 +69,7 @@ public class ClientPush extends AbstractClient {
                 engine.setUseClientMode(true);
 
                 ChannelPipeline pipeline = ch.pipeline();
-                pipeline.addLast("ssl", new SslHandler(engine));
+//                pipeline.addLast("ssl", new SslHandler(engine));
                 pipeline.addLast("decoder", new RtspResponseDecoder());
                 pipeline.addLast("rtsp-encoder", new RtspRequestEncoder());
                 pipeline.addLast("rtp-encoder", new RtpEncoder());
@@ -79,5 +79,31 @@ public class ClientPush extends AbstractClient {
 
             }
         };
+    }
+
+    public int getSeq() {
+        return seq;
+    }
+
+    public void setSeq(int seq) {
+        this.seq = seq;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public static void main(String[] args) {
+        String url = "rtsp://54.223.242.201:554/3111.sdp";
+        try {
+            AbstractClient client = new ClientPush(url);
+            client.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

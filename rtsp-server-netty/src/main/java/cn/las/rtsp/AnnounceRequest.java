@@ -20,11 +20,21 @@ public class AnnounceRequest implements Callable<HttpRequest> {
             "i=LIVE555 Streaming M\n" +
             "c=IN IP4 127.0.0.1\n" +
             "t=0 0\n" +
-            "a=x-qt-text-nam:54.222.135.41\n" +
+            "a=x-qt-text-nam:54.223.242.201\n" +
             "a=x-qt-text-inf:liveSengledIPC\n" +
             "a=x-qt-text-cmt:source application:LIVE555 Streaming Media\n" +
             "a=x-qt-text-aut:DarwinInjector\n" +
-            "a=x-qt-text-cpy:\n";
+            "a=x-qt-text-cpy:\n" +
+            "m=video 0 RTP/AVP 97\n" +
+            "a=rtpmap:97 H264/90000\n" +
+            "a=control:trackID=1\n"+
+            "m=audio 0 RTP/AVP 8\n"+
+            "a=3GPP-Adaptation-Support:1\n" +
+            "a=ptime:20\n" +
+            "a=control:trackID=2\n"  ;
+    /**
+     *
+     */
 
     private AbstractClient client;
 

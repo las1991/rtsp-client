@@ -25,7 +25,11 @@ public class RtpDecoder extends ByteToMessageDecoder {
             Integer channel = new Byte(req[1]).intValue();
             Integer size = new Integer(((req[2] & 0xFF) << 8) | ((req[3] & 0xFF))) + 4;
             Integer sequence = new Integer(((req[6] & 0xFF) << 8) | ((req[7] & 0xFF)));
-            System.out.println(sequence + ":" + size);
+            if(channel==0){
+                byte rtpHeader=req[16];
+                System.out.println(sequence + ":" + size);
+                System.out.println("nalu header: "+new Byte((byte) (rtpHeader >> 7)).intValue()+","+(rtpHeader >> 5)+","+(rtpHeader & 31));
+            }
 
             if (in.readableBytes() >= size) {
                 byte[] cache = new byte[size];

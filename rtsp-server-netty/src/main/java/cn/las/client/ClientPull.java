@@ -50,4 +50,13 @@ public class ClientPull extends AbstractClient {
         };
     }
 
+    public static void main(String[] args) {
+        String url = "rtsp://54.223.242.201:554/7947B6B48864E301AC3064E426F33403.sdp";
+        try {
+            AbstractClient client = new ClientPull(url);
+            client.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

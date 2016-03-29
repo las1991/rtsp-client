@@ -31,7 +31,7 @@ public class H264Sample {
 
     static {
         try {
-            String file="C:\\Users\\las\\Desktop\\1a75a431-7f9c-40e0-961e-dda32127c86a.mp4";
+            String file="C:\\Users\\andy\\Desktop\\380988eb-8c12-491d-a238-09437414fdce.mp4";
 //            String file="F:\\workspaces\\rtsp-server\\rtsp-server-netty\\src\\main\\java\\cn\\las\\mp4parser\\test.mp4";
             isoFile = new IsoFile(file);
             trackBoxes.add((TrackBox) Path.getPath(isoFile, "moov/trak/"));
