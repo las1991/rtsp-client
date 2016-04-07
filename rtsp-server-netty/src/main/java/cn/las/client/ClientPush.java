@@ -98,7 +98,7 @@ public class ClientPush extends AbstractClient {
     }
 
     public static void main(String[] args) {
-        String url = "rtsp://54.222.204.192:554/FFC47B3CE72E275DD09C32B1AC4A9E72.sdp";
+        String url = "rtsp://54.222.135.41:554/4FE2A3AE23D4C959419186930DC9CE98.sdp";
         try {
             AbstractClient client = new ClientPush(url);
             client.start();

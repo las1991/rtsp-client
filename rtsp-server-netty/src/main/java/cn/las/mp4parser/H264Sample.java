@@ -1,6 +1,5 @@
 package cn.las.mp4parser;
 
-import cn.las.client.ClientPush;
 import org.mp4parser.IsoFile;
 import org.mp4parser.boxes.iso14496.part12.TrackBox;
 import org.mp4parser.boxes.iso14496.part15.AvcConfigurationBox;
@@ -30,10 +29,14 @@ public class H264Sample {
 
     public static int lengthSize;
 
+    public static ByteBuffer sps;
+
+    public static ByteBuffer pps;
+
     static {
         try {
-            String file=ClientPush.class.getClassLoader().getResource("").getPath()+"cab9a9bc-235b-433e-a033-fcf2b26220d5.mp4";
-//            String file=ClientPush.class.getClassLoader().getResource("").getPath()+"test.mp4";
+//            String file=H264Sample.class.getClassLoader().getResource("").getPath()+"cab9a9bc-235b-433e-a033-fcf2b26220d5.mp4";
+            String file = H264Sample.class.getClassLoader().getResource("").getPath() + "test.mp4";
             isoFile = new IsoFile(file);
             trackBoxes.add((TrackBox) Path.getPath(isoFile, "moov/trak/"));
             long trackId = -1;
@@ -47,25 +50,26 @@ public class H264Sample {
             samples = new SampleList(trackId, isoFile, new FileRandomAccessSourceImpl(
                     new RandomAccessFile(file, "r")));
             lengthSize = ((AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC")).getLengthSizeMinusOne() + 1;
+            sps = ((AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC")).getSequenceParameterSets().get(0);
+            pps = ((AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC")).getPictureParameterSets().get(0);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static AtomicInteger sampleIndex=new AtomicInteger(0);
+    private static AtomicInteger sampleIndex = new AtomicInteger(0);
 
-    public static Sample getSample(){
+    public static Sample getSample() {
         Integer index;
-        if(sampleIndex.get()>samples.size())
-            index=sampleIndex.getAndSet(0);
+        if (sampleIndex.get() > samples.size()-1)
+            index = sampleIndex.getAndSet(0);
         else
-            index=sampleIndex.getAndAdd(1);
+            index = sampleIndex.getAndAdd(1);
 
-        if(index<samples.size()){
+        if (index < samples.size()) {
             return samples.get(index);
         }
         return null;
     }
-
 
 }

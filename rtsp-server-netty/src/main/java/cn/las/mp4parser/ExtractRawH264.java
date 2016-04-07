@@ -1,6 +1,7 @@
 package cn.las.mp4parser;
 
 
+import cn.las.message.NaluHeader;
 import org.mp4parser.IsoFile;
 import org.mp4parser.boxes.iso14496.part12.TrackBox;
 import org.mp4parser.boxes.iso14496.part15.AvcConfigurationBox;
@@ -25,7 +26,10 @@ import java.util.List;
  */
 public class ExtractRawH264 {
     public static void main(String[] args) throws Exception {
-        IsoFile isoFile = new IsoFile("C:\\Users\\andy\\Desktop\\1365070268951.mp4");
+        String path = ExtractRawH264.class.getClassLoader().getResource("").getPath();
+        String file = path + "test.mp4";
+
+        IsoFile isoFile = new IsoFile(file);
 
         List<TrackBox> trackBoxes = new ArrayList<TrackBox>();
         trackBoxes.add((TrackBox) Path.getPath(isoFile, "moov/trak/"));
@@ -40,24 +44,45 @@ public class ExtractRawH264 {
         }
 
         SampleList sl = new SampleList(trackId, isoFile, new FileRandomAccessSourceImpl(
-                new RandomAccessFile("C:\\Users\\andy\\Desktop\\1365070268951.mp4", "r")));
+                new RandomAccessFile(file, "r")));
 
 
-        FileChannel fc = new FileOutputStream("C:\\Users\\andy\\Desktop\\out.h264").getChannel();
+        FileChannel fc = new FileOutputStream(path + "out.h264").getChannel();
         ByteBuffer separator = ByteBuffer.wrap(new byte[]{0, 0, 0, 1});
+
+        AvcConfigurationBox avcConfigurationBox = (AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC");
+        System.out.println("avcConfigurationBox : ");
+        System.out.println(avcConfigurationBox);
+        System.out.println("ConfigurationVersion : " + avcConfigurationBox.getConfigurationVersion());
+        System.out.println("AvcProfileIndication : " + avcConfigurationBox.getAvcProfileIndication());
+        System.out.println("ProfileCompatibility : " + avcConfigurationBox.getProfileCompatibility());
+        System.out.println("AvcLevelIndication : "+avcConfigurationBox.getAvcLevelIndication());
+        System.out.println("LengthSizeMinusOne : "+avcConfigurationBox.getLengthSizeMinusOne());
+        System.out.println("==================================");
+        System.out.println("sps : ");
+        System.out.println("size : " + avcConfigurationBox.getSequenceParameterSets().size());
+        ByteBuffer sps = avcConfigurationBox.getSequenceParameterSets().get(0).slice();
+        byte[] byteSPS = sps.array();
+        NaluHeader nh = new NaluHeader((byteSPS[0] >> 7), (byteSPS[0] >> 5), (byteSPS[0] & 31));
+        System.out.println(nh);
+        System.out.println("==================================");
+        System.out.println("pps : ");
+        System.out.println("size : " + avcConfigurationBox.getPictureParameterSets().size());
+        ByteBuffer pps = avcConfigurationBox.getPictureParameterSets().get(0).slice();
+        byte[] bytePPS = pps.array();
+        nh = new NaluHeader((bytePPS[0] >> 7), (bytePPS[0] >> 5), (bytePPS[0] & 31));
+        System.out.println(nh);
+        System.out.println("=================================");
 
         fc.write((ByteBuffer) separator.rewind());
         // Write SPS
-        fc.write((
-                ((AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC")
-                ).getSequenceParameterSets().get(0)));
+        fc.write(avcConfigurationBox.getSequenceParameterSets().get(0));
         // Warning:
         // There might be more than one SPS (I've never seen that but it is possible)
 
         fc.write((ByteBuffer) separator.rewind());
         // Write PPS
-        fc.write(((AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC"))
-                .getPictureParameterSets().get(0));
+        fc.write(avcConfigurationBox.getPictureParameterSets().get(0));
         // Warning:
         // There might be more than one PPS (I've never seen that but it is possible)
 
@@ -70,8 +95,6 @@ public class ExtractRawH264 {
                 fc.write((ByteBuffer) bb.slice().limit(length));
                 bb.position(bb.position() + length);
             }
-
-
         }
         fc.close();
     }

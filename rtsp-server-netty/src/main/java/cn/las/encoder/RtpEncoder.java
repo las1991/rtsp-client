@@ -28,7 +28,6 @@ public class RtpEncoder extends MessageToByteEncoder<RtpPackage> {
         byteBuf.writeByte(DOLLA);
         byteBuf.writeByte((byte) 0x00);
         byteBuf.writeShort(length);
-        System.out.println(length);
         byteBuf.writeBytes(rtpPackage.getHeader().getRtpHeader());
         if(rtpPackage.getBody().getFuIndicator()!=null
                 &&rtpPackage.getBody().getFuHeader()!=null){
