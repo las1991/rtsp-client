@@ -70,13 +70,11 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                 client.setSession(rep.headers().get(RtspHeaderNames.SESSION).toString());
                 System.out.println("session : " + client.getSession());
                 if (StringUtils.isEmpty(client.getSession())) {
-
                     request = new SetUpRequest(client, 2);
                 } else {
                     request = new PlayRequest(client);
                     client.setStatus(RtspMethods.PLAY);
                 }
-
             } else if (client.getStatus().equals(RtspMethods.PLAY)) {
                 if (client instanceof ClientPush) {
                     pushRtp = ctx.executor().scheduleAtFixedRate(
@@ -84,13 +82,10 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                             TimeUnit.MILLISECONDS);
                 }
 //                request = new DescribeRequest(client);
-
             } else if (client.getStatus().equals(RtspMethods.PAUSE)) {
 //                request = new DescribeRequest(client);
-
             } else if (client.getStatus().equals(RtspMethods.TEARDOWN)) {
 //                request = new DescribeRequest(client);
-
             }
             if (request != null) {
                 client.setCseq(client.getCseq() + 1);
@@ -99,8 +94,6 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                 ChannelFuture future = ctx.writeAndFlush(req);
             }
         }
-
-
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cn.las.mp4parser;
 
+import cn.las.client.ClientPush;
 import org.mp4parser.IsoFile;
 import org.mp4parser.boxes.iso14496.part12.TrackBox;
 import org.mp4parser.boxes.iso14496.part15.AvcConfigurationBox;
@@ -31,8 +32,8 @@ public class H264Sample {
 
     static {
         try {
-            String file="C:\\Users\\andy\\Desktop\\380988eb-8c12-491d-a238-09437414fdce.mp4";
-//            String file="F:\\workspaces\\rtsp-server\\rtsp-server-netty\\src\\main\\java\\cn\\las\\mp4parser\\test.mp4";
+            String file=ClientPush.class.getClassLoader().getResource("").getPath()+"cab9a9bc-235b-433e-a033-fcf2b26220d5.mp4";
+//            String file=ClientPush.class.getClassLoader().getResource("").getPath()+"test.mp4";
             isoFile = new IsoFile(file);
             trackBoxes.add((TrackBox) Path.getPath(isoFile, "moov/trak/"));
             long trackId = -1;

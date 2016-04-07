@@ -43,7 +43,7 @@ public class ExtractRawH264 {
                 new RandomAccessFile("C:\\Users\\andy\\Desktop\\1365070268951.mp4", "r")));
 
 
-        FileChannel fc = new FileOutputStream("out.h264").getChannel();
+        FileChannel fc = new FileOutputStream("C:\\Users\\andy\\Desktop\\out.h264").getChannel();
         ByteBuffer separator = ByteBuffer.wrap(new byte[]{0, 0, 0, 1});
 
         fc.write((ByteBuffer) separator.rewind());

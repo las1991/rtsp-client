@@ -20,7 +20,7 @@ public class AnnounceRequest implements Callable<HttpRequest> {
             "i=LIVE555 Streaming M\n" +
             "c=IN IP4 127.0.0.1\n" +
             "t=0 0\n" +
-            "a=x-qt-text-nam:54.223.242.201\n" +
+            "a=x-qt-text-nam:54.222.204.192\n" +
             "a=x-qt-text-inf:liveSengledIPC\n" +
             "a=x-qt-text-cmt:source application:LIVE555 Streaming Media\n" +
             "a=x-qt-text-aut:DarwinInjector\n" +

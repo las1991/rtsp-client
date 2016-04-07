@@ -34,7 +34,7 @@ public class ClientPush extends AbstractClient {
     private final static String PROTOCOL = "TLS";
     private final static String CLIENT_KEY_STORE = "";
     private final static String CLIENT_KEY_STORE_PASSWORD = "";
-    private final static String CLIENT_TRUST_KEY_STORE = "E:\\workspace_inteliJ\\rtsp-server\\rtsp-server-netty\\src\\main\\java\\cn\\las\\client\\clientTruststore.jks";
+    private final static String CLIENT_TRUST_KEY_STORE = ClientPush.class.getClassLoader().getResource("").getPath()+"clientTruststore.jks";
     private final static String CLIENT_TRUST_KEY_STORE_PASSWORD = "123456";
 
     public ClientPush(String url) {
@@ -98,7 +98,7 @@ public class ClientPush extends AbstractClient {
     }
 
     public static void main(String[] args) {
-        String url = "rtsp://54.223.242.201:554/3111.sdp";
+        String url = "rtsp://54.222.204.192:554/FFC47B3CE72E275DD09C32B1AC4A9E72.sdp";
         try {
             AbstractClient client = new ClientPush(url);
             client.start();
