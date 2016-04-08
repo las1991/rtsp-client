@@ -54,30 +54,6 @@ public class RtpPacketizer {
         return packages;
     }
 
-    /**
-     * 判断是否为0x00 00 01,如果是返回1
-     *
-     * @param Buf
-     *
-     * @return
-     */
-    private static int FindStartCode2(byte[] Buf) {
-        if (Buf[0] != 0 || Buf[1] != 0 || Buf[2] != 1) return 0;
-        else return 1;
-    }
-
-    /**
-     * 判断是否为0x00 00 00 01,如果是返回1
-     *
-     * @param Buf
-     *
-     * @return
-     */
-    private static int FindStartCode3(byte[] Buf) {
-        if (Buf[0] != 0 || Buf[1] != 0 || Buf[2] != 0 || Buf[3] != 1) return 0;
-        else return 1;
-    }
-
     private static List<RtpPackage> createPackages(byte[] bytes, ClientPush clientPush, NaluHeader naluHeader) {
         System.out.println(naluHeader);
         List<RtpPackage> packages = new ArrayList<>();
