@@ -24,20 +24,24 @@ public class RtpEncoder extends MessageToByteEncoder<RtpPackage> {
         }else {
             length=12+1+rtpPackage.getBody().getData().length;
         }
-        ByteBuf byteBuf= out.alloc().directBuffer(length);
-        byteBuf.writeByte(DOLLA);
-        byteBuf.writeByte((byte) 0x00);
-        byteBuf.writeShort(length);
-        byteBuf.writeBytes(rtpPackage.getHeader().getRtpHeader());
-        if(rtpPackage.getBody().getFuIndicator()!=null
-                &&rtpPackage.getBody().getFuHeader()!=null){
-            byteBuf.writeByte(rtpPackage.getBody().getFuIndicator().getFuIndicator());
-            byteBuf.writeByte(rtpPackage.getBody().getFuHeader().getFuHeader());
-        }else {
-            byteBuf.writeByte(rtpPackage.getBody().getNaluHeader().getNaluHeader());
+        ByteBuf byteBuf= null;
+        try{
+            byteBuf= out.alloc().directBuffer(length);
+            byteBuf.writeByte(DOLLA);
+            byteBuf.writeByte((byte) 0x00);
+            byteBuf.writeShort(length);
+            byteBuf.writeBytes(rtpPackage.getHeader().getRtpHeader());
+            if(rtpPackage.getBody().getFuIndicator()!=null
+                    &&rtpPackage.getBody().getFuHeader()!=null){
+                byteBuf.writeByte(rtpPackage.getBody().getFuIndicator().getFuIndicator());
+                byteBuf.writeByte(rtpPackage.getBody().getFuHeader().getFuHeader());
+            }else {
+                byteBuf.writeByte(rtpPackage.getBody().getNaluHeader().getNaluHeader());
+            }
+            byteBuf.writeBytes(rtpPackage.getBody().getData());
+            out.writeBytes(byteBuf);
+        }finally {
+            byteBuf.release();
         }
-        byteBuf.writeBytes(rtpPackage.getBody().getData());
-        out.writeBytes(byteBuf);
-        byteBuf.release();
     }
 }
