@@ -38,5 +38,6 @@ public class RtpEncoder extends MessageToByteEncoder<RtpPackage> {
         }
         byteBuf.writeBytes(rtpPackage.getBody().getData());
         out.writeBytes(byteBuf);
+        byteBuf.release();
     }
 }
