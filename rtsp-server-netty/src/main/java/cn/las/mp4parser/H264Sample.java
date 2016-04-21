@@ -36,7 +36,7 @@ public class H264Sample {
     static {
         try {
 //            String file=H264Sample.class.getClassLoader().getResource("").getPath()+"cab9a9bc-235b-433e-a033-fcf2b26220d5.mp4";
-            String file = H264Sample.class.getClassLoader().getResource("").getPath() + "test.mp4";
+            String file = H264Sample.class.getClassLoader().getResource("").getPath() + "test1.mp4";
             isoFile = new IsoFile(file);
             trackBoxes.add((TrackBox) Path.getPath(isoFile, "moov/trak/"));
             long trackId = -1;
@@ -57,9 +57,9 @@ public class H264Sample {
         }
     }
 
-    private static AtomicInteger sampleIndex = new AtomicInteger(0);
+    private AtomicInteger sampleIndex = new AtomicInteger(0);
 
-    public static Sample getSample() {
+    public Sample getSample() {
         Integer index;
         if (sampleIndex.get() > samples.size()-1)
             index = sampleIndex.getAndSet(0);

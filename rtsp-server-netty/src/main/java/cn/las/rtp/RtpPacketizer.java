@@ -55,7 +55,7 @@ public class RtpPacketizer {
     }
 
     private static List<RtpPackage> createPackages(byte[] bytes, ClientPush clientPush, NaluHeader naluHeader) {
-        System.out.println(naluHeader);
+//        System.out.println(naluHeader);
         List<RtpPackage> packages = new ArrayList<>();
         int seq = clientPush.getSeq();
         long timestamp = clientPush.getTimestamp();

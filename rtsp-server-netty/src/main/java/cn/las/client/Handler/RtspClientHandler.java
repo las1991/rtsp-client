@@ -3,8 +3,8 @@ package cn.las.client.Handler;
 import cn.las.client.AbstractClient;
 import cn.las.client.ClientManager;
 import cn.las.client.ClientPush;
+import cn.las.client.StreamManager;
 import cn.las.message.RtpPackage;
-import cn.las.mp4parser.H264Sample;
 import cn.las.rtp.RtpPacketizer;
 import cn.las.rtsp.*;
 import io.netty.buffer.ByteBuf;
@@ -43,7 +43,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, FullHttpResponse rep) throws Exception {
-        System.out.println(rep);
+//        System.out.println(rep);
         if (rep.status().equals(HttpResponseStatus.OK)) {
             AbstractClient client = ClientManager.get(ctx.channel().id().asLongText());
             Callable<HttpRequest> request = null;
@@ -90,7 +90,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
             if (request != null) {
                 client.setCseq(client.getCseq() + 1);
                 HttpRequest req = request.call();
-                System.out.println(req);
+//                System.out.println(req);
                 ChannelFuture future = ctx.writeAndFlush(req);
             }
         }
@@ -114,7 +114,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
         @Override
         public void run() {
             ClientPush clientPush = (ClientPush) ClientManager.get(ctx.channel().id().asLongText());
-            Sample sample = H264Sample.getSample();
+            Sample sample = StreamManager.get(ctx.channel().id().asLongText()).getSample();
             List<RtpPackage> packages = RtpPacketizer.getRtpPackages(sample, clientPush);
             for (RtpPackage rtpPackage : packages) {
                 ctx.writeAndFlush(rtpPackage);

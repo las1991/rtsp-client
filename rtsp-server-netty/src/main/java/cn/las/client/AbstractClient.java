@@ -1,5 +1,6 @@
 package cn.las.client;
 
+import cn.las.mp4parser.H264Sample;
 import cn.las.rtsp.OptionsRequest;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -11,7 +12,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.rtsp.RtspMethods;
 
-import java.net.URI;
 import java.util.Properties;
 
 /**
@@ -35,6 +35,7 @@ public abstract class AbstractClient implements Client{
 
     @Override
     public void start() throws Exception {
+        System.out.println("client start "+this.getUrl());
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap bootstrap = new Bootstrap();
@@ -43,10 +44,12 @@ public abstract class AbstractClient implements Client{
             this.future = bootstrap.connect(this.host, this.port).sync();
             this.channel = future.channel();
             ClientManager.put(this.channel.id().asLongText(), this);
+            StreamManager.put(this.channel.id().asLongText(), new H264Sample());
             OptionsRequest request = new OptionsRequest(this);
             this.status= RtspMethods.OPTIONS;
             this.channel.writeAndFlush(request.call());
             this.channel.closeFuture().sync();
+            System.out.println("client end "+this.getUrl());
         } finally {
             group.shutdownGracefully();
         }

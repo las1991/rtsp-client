@@ -1,5 +1,7 @@
 package cn.las.client;
 
+import cn.las.mp4parser.H264Sample;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -8,22 +10,22 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @version 1.0
  * @Description
  * @Author：andy
- * @CreateDate：2016/3/22
+ * @CreateDate：2016/4/21
  */
-public class ClientManager {
+public class StreamManager {
 
     private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private static Map<String, AbstractClient> clientMap = new HashMap<>();
+    private static Map<String, H264Sample> map = new HashMap<>();
 
-    public static Map<String, AbstractClient> getClientMap() {
-        return clientMap;
+    public static Map<String, H264Sample> getMap() {
+        return map;
     }
 
-    public static void put(String channelId, AbstractClient client) {
+    public static void put(String channelId, H264Sample h264Sample) {
         lock.writeLock().lock();
         try {
-            clientMap.put(channelId, client);
+            map.put(channelId, h264Sample);
         } finally {
             lock.writeLock().unlock();
         }
@@ -32,19 +34,18 @@ public class ClientManager {
     public static void remove(String key) {
         lock.writeLock().lock();
         try {
-            clientMap.remove(key);
+            map.remove(key);
         } finally {
             lock.writeLock().unlock();
         }
     }
 
-    public static AbstractClient get(String key) {
+    public static H264Sample get(String key) {
         lock.readLock().lock();
         try {
-            return clientMap.get(key);
+            return map.get(key);
         } finally {
             lock.readLock().unlock();
         }
     }
-
 }

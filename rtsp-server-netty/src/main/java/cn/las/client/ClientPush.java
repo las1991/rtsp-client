@@ -9,6 +9,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.rtsp.RtspRequestEncoder;
 import io.netty.handler.codec.rtsp.RtspResponseDecoder;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 import javax.net.ssl.SSLContext;
@@ -44,7 +45,7 @@ public class ClientPush extends AbstractClient {
         try {
             URI uri = new URI(this.url);
             this.host=uri.getHost();
-            this.port=554;
+            this.port=1554;
         } catch (URISyntaxException e) {
         }
     }
@@ -69,7 +70,7 @@ public class ClientPush extends AbstractClient {
                 engine.setUseClientMode(true);
 
                 ChannelPipeline pipeline = ch.pipeline();
-//                pipeline.addLast("ssl", new SslHandler(engine));
+                pipeline.addLast("ssl", new SslHandler(engine));
                 pipeline.addLast("decoder", new RtspResponseDecoder());
                 pipeline.addLast("rtsp-encoder", new RtspRequestEncoder());
                 pipeline.addLast("rtp-encoder", new RtpEncoder());
@@ -97,13 +98,24 @@ public class ClientPush extends AbstractClient {
         this.timestamp = timestamp;
     }
 
-    public static void main(String[] args) {
-        String url = "rtsp://54.222.204.192:554/4FE2A3AE23D4C959419186930DC9CE98.sdp";
-        try {
-            AbstractClient client = new ClientPush(url);
-            client.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static void main(String[] args) throws InterruptedException {
+        final String host="54.222.135.41";
+        for (int i=0;i<1;i++){
+            final int finalI = i;
+            Thread t=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String url = "rtsp://"+host+":554/4FE2A3AE23D4C959419186930DC9CE98.sdp";//"+ finalI +"
+                    try {
+                        AbstractClient client = new ClientPush(url);
+                        client.start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            t.join();
+            t.start();
         }
     }
 }
