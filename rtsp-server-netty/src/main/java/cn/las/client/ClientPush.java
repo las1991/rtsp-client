@@ -99,13 +99,13 @@ public class ClientPush extends AbstractClient {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        final String host="54.222.135.41";
+        final String host="54.222.187.235";
         for (int i=0;i<1;i++){
             final int finalI = i;
             Thread t=new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    String url = "rtsp://"+host+":554/4FE2A3AE23D4C959419186930DC9CE98.sdp";//"+ finalI +"
+                    String url = "rtsp://"+host+":554/4FE2A3AE23D4C959419186930DC9CE8"+ finalI +".sdp";//
                     try {
                         AbstractClient client = new ClientPush(url);
                         client.start();

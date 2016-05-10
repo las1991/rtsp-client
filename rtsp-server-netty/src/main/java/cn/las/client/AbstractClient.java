@@ -11,6 +11,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.rtsp.RtspMethods;
+import org.apache.log4j.Logger;
 
 import java.util.Properties;
 
@@ -21,6 +22,8 @@ import java.util.Properties;
  * @CreateDate：2016/3/24
  */
 public abstract class AbstractClient implements Client{
+
+    Logger logger = Logger.getLogger(this.getClass());
 
     protected String host;
     protected Integer port;
@@ -35,7 +38,7 @@ public abstract class AbstractClient implements Client{
 
     @Override
     public void start() throws Exception {
-        System.out.println("client start "+this.getUrl());
+        logger.info("client start "+this.getUrl());
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap bootstrap = new Bootstrap();
@@ -49,7 +52,7 @@ public abstract class AbstractClient implements Client{
             this.status= RtspMethods.OPTIONS;
             this.channel.writeAndFlush(request.call());
             this.channel.closeFuture().sync();
-            System.out.println("client end "+this.getUrl());
+            logger.info("client end "+this.getUrl());
         } finally {
             group.shutdownGracefully();
         }

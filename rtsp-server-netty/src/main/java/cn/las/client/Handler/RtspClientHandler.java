@@ -18,7 +18,10 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
 import io.netty.handler.codec.rtsp.RtspMethods;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.mp4parser.muxer.Sample;
+
+
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -34,6 +37,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
 
+    Logger logger = Logger.getLogger(this.getClass());
+
     private volatile ScheduledFuture<?> pushRtp;
 
     @Override
@@ -43,7 +48,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, FullHttpResponse rep) throws Exception {
-//        System.out.println(rep);
+        logger.debug(rep);
         if (rep.status().equals(HttpResponseStatus.OK)) {
             AbstractClient client = ClientManager.get(ctx.channel().id().asLongText());
             Callable<HttpRequest> request = null;
@@ -68,7 +73,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
 
             } else if (client.getStatus().equals(RtspMethods.SETUP)) {
                 client.setSession(rep.headers().get(RtspHeaderNames.SESSION).toString());
-                System.out.println("session : " + client.getSession());
+                logger.info("session : " + client.getSession());
                 if (StringUtils.isEmpty(client.getSession())) {
                     request = new SetUpRequest(client, 2);
                 } else {
@@ -90,7 +95,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
             if (request != null) {
                 client.setCseq(client.getCseq() + 1);
                 HttpRequest req = request.call();
-//                System.out.println(req);
+                logger.debug(req);
                 ChannelFuture future = ctx.writeAndFlush(req);
             }
         }

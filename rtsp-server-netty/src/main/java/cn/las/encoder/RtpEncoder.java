@@ -4,6 +4,7 @@ import cn.las.message.RtpPackage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import org.apache.log4j.Logger;
 
 /**
  * @version 1.0
@@ -13,6 +14,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
  */
 public class RtpEncoder extends MessageToByteEncoder<RtpPackage> {
 
+    Logger logger = Logger.getLogger(this.getClass());
     private final static byte DOLLA = 0x24;
 
     @Override
@@ -24,6 +26,7 @@ public class RtpEncoder extends MessageToByteEncoder<RtpPackage> {
         }else {
             length=12+1+rtpPackage.getBody().getData().length;
         }
+        logger.debug("encode length:"+length);
         ByteBuf byteBuf= null;
         try{
             byteBuf= out.alloc().directBuffer(length);

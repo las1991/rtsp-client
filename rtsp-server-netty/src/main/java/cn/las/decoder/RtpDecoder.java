@@ -3,6 +3,7 @@ package cn.las.decoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -13,6 +14,8 @@ import java.util.List;
  * @CreateDate：2016/3/22
  */
 public class RtpDecoder extends ByteToMessageDecoder {
+
+    Logger logger = Logger.getLogger(this.getClass());
 
     private final static byte DOLLA = 0x24;
 
@@ -27,8 +30,8 @@ public class RtpDecoder extends ByteToMessageDecoder {
             Integer sequence = new Integer(((req[6] & 0xFF) << 8) | ((req[7] & 0xFF)));
             if(channel==0){
                 byte rtpHeader=req[16];
-                System.out.println(sequence + ":" + size);
-                System.out.println("nalu header: "+new Byte((byte) (rtpHeader >> 7)).intValue()+","+(rtpHeader >> 5)+","+(rtpHeader & 31));
+                logger.debug(sequence + ":" + size);
+                logger.debug("nalu header: "+new Byte((byte) (rtpHeader >> 7)).intValue()+","+(rtpHeader >> 5)+","+(rtpHeader & 31));
             }
 
             if (in.readableBytes() >= size) {
@@ -36,7 +39,7 @@ public class RtpDecoder extends ByteToMessageDecoder {
                 in.readBytes(cache);
             }
         } else {
-            System.out.println(new String(req, "UTF-8"));
+            logger.debug(new String(req, "UTF-8"));
             in.retain();
             ctx.fireChannelRead(in);
         }
