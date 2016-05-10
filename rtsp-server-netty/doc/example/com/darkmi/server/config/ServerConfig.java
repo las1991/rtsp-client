@@ -1,5 +1,6 @@
 package com.darkmi.server.config;
 
+import com.darkmi.server.core.RtspController;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-
-import com.darkmi.server.core.RtspController;
 
 @Configuration
 @ComponentScan(basePackages = {"com.darkmi"})
