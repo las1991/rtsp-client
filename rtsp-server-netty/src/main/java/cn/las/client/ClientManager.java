@@ -1,8 +1,6 @@
 package cn.las.client;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @version 1.0
@@ -12,39 +10,23 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class ClientManager {
 
-    private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private static Map<String, AbstractClient> clientMap = new HashMap<>();
+    private static ConcurrentHashMap<String, AbstractClient.ClientSession> clientMap = new ConcurrentHashMap<>();
 
-    public static Map<String, AbstractClient> getClientMap() {
+    public static ConcurrentHashMap<String, AbstractClient.ClientSession> getClientMap() {
         return clientMap;
     }
 
-    public static void put(String channelId, AbstractClient client) {
-        lock.writeLock().lock();
-        try {
-            clientMap.put(channelId, client);
-        } finally {
-            lock.writeLock().unlock();
-        }
+    public static void put(String channelId, AbstractClient.ClientSession client) {
+        clientMap.put(channelId, client);
     }
 
     public static void remove(String key) {
-        lock.writeLock().lock();
-        try {
-            clientMap.remove(key);
-        } finally {
-            lock.writeLock().unlock();
-        }
+        clientMap.remove(key);
     }
 
-    public static AbstractClient get(String key) {
-        lock.readLock().lock();
-        try {
-            return clientMap.get(key);
-        } finally {
-            lock.readLock().unlock();
-        }
+    public static AbstractClient.ClientSession get(String key) {
+        return clientMap.get(key);
     }
 
 }

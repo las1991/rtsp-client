@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
  */
 public class PauseRequest implements Callable<HttpRequest> {
 
-    private AbstractClient client;
+    private AbstractClient.ClientSession client;
 
     @Override
     public HttpRequest call() throws Exception {

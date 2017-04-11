@@ -9,7 +9,7 @@ import io.netty.channel.ChannelHandler;
  * @CreateDate：2016/3/24
  */
 public interface Client {
-    public void start() throws Exception;
+    public void start(String url) throws Exception;
 
     public ChannelHandler getHandler();
 }

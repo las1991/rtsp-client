@@ -19,31 +19,31 @@ public class RtpEncoder extends MessageToByteEncoder<RtpPackage> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, RtpPackage rtpPackage, ByteBuf out) throws Exception {
-        Integer length=0;
-        if(rtpPackage.getBody().getFuIndicator()!=null
-                &&rtpPackage.getBody().getFuHeader()!=null){
-            length=12+1+1+rtpPackage.getBody().getData().length;
-        }else {
-            length=12+1+rtpPackage.getBody().getData().length;
+        Integer length = rtpPackage.getHeader().getRtpHeader().length;
+        if (rtpPackage.getBody().getFuIndicator() != null
+                && rtpPackage.getBody().getFuHeader() != null) {
+            length += 1 + 1 + rtpPackage.getBody().getData().length;
+        } else {
+            length += 1 + rtpPackage.getBody().getData().length;
         }
-        logger.debug("encode length:"+length);
-        ByteBuf byteBuf= null;
-        try{
-            byteBuf= out.alloc().directBuffer(length);
+//        logger.debug("encode length:" + length);
+        ByteBuf byteBuf = null;
+        try {
+            byteBuf = out.alloc().directBuffer(length);
             byteBuf.writeByte(DOLLA);
-            byteBuf.writeByte((byte) 0x00);
+            byteBuf.writeByte(rtpPackage.getChannel());
             byteBuf.writeShort(length);
             byteBuf.writeBytes(rtpPackage.getHeader().getRtpHeader());
-            if(rtpPackage.getBody().getFuIndicator()!=null
-                    &&rtpPackage.getBody().getFuHeader()!=null){
+            if (rtpPackage.getBody().getFuIndicator() != null
+                    && rtpPackage.getBody().getFuHeader() != null) {
                 byteBuf.writeByte(rtpPackage.getBody().getFuIndicator().getFuIndicator());
                 byteBuf.writeByte(rtpPackage.getBody().getFuHeader().getFuHeader());
-            }else {
+            } else {
                 byteBuf.writeByte(rtpPackage.getBody().getNaluHeader().getNaluHeader());
             }
             byteBuf.writeBytes(rtpPackage.getBody().getData());
             out.writeBytes(byteBuf);
-        }finally {
+        } finally {
             byteBuf.release();
         }
     }

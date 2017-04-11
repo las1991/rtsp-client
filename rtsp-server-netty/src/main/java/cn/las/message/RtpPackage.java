@@ -6,6 +6,7 @@ package cn.las.message;
 public class RtpPackage {
     private RtpHeader header;
     private RtpBody body;
+    private int channel=2;
 
     public RtpPackage(RtpHeader header, RtpBody body) {
         this.header = header;
@@ -26,5 +27,13 @@ public class RtpPackage {
 
     public void setBody(RtpBody body) {
         this.body = body;
+    }
+
+    public int getChannel() {
+        return channel;
+    }
+
+    public void setChannel(int channel) {
+        this.channel = channel;
     }
 }

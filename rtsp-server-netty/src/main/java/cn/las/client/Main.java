@@ -1,5 +1,11 @@
 package cn.las.client;
 
+import cn.las.util.Md5Util;
+import org.apache.log4j.Logger;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * @version 1.0
  * @Description
@@ -7,33 +13,64 @@ package cn.las.client;
  * @CreateDate：2016/3/22
  */
 public class Main {
-    /**
-     ECF5E96A81A12FCA6701FF1FCC9F4B31
-     FFC47B3CE72E275DD09C32B1AC4A9E72
-     C0E888043DFDF85941E10C885FB587D3
-     2828CD00B6061FD6B794B4EB4B7B1C0E
-     870D3D260ED919FAF1FEA357FD16D038
-     4FE2A3AE23D4C959419186930DC9CE98
-     B583898C8EE52B6BD87019D0ABED7D6F
-     140A4524FC57C21DA0768EBEAB4AA392
-     21098A18E5AA249CD0382107EA57CD7D
-     7947B6B48864E301AC3064E426F33403
-     550CB12DDD577729E78E9334D416234A
-     7136C7D76F5EE09DD1DA564D02EA56F9
-     D7C14B4864069A1EDC61D3B078AAEFBD
-     6F59F13B3DF6508B0B07EF5B6436E6D7
-     91B86EE0765A4D49935FA1A0548CD240
-     5B5C7903DE182ABDA4172F5628743C16
-     C0FDC947EC72040A496D317CE8FBA854
-     CADB3DC52D3A14170503EE0F9645326F
-     */
-    public static void main(String[] args) {
-        String url = "rtsp://54.223.242.201:554/1.sdp";
-        try {
-            AbstractClient client = new ClientPush(url);
-            client.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+    private static Logger logger = Logger.getLogger(Main.class);
+
+    public static void main(String[] args) throws InterruptedException {
+        if (args.length < 5) {
+            logger.error("usage [action] [host] [port] [start] [end]");
+            return;
         }
+
+//        System.setProperty("io.netty.leakDetection.acquireAndReleaseOnly", "true");
+//        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
+
+        String action = args[0];
+        String host = args[1];
+        int port = 554;
+        try {
+            port = Integer.parseInt(args[2]);
+        } catch (Exception e) {
+        }
+        if ("push".equals(action)) {//push 10.100.102.29 554 0 4
+            int start = 0;
+            int end = 1;
+            try {
+                start = Integer.parseInt(args[3]);
+                end = Integer.parseInt(args[4]);
+            } catch (Exception e) {
+            }
+            final AbstractClient client = new ClientPush();
+            for (int i = start; i < end; i++) {
+                String url = "rtsp://" + host + ":" + port + "/" + Md5Util.md5(i + "");
+                try {
+                    client.start(url);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if ("pull".equals(action)) {//pull 10.100.102.29 554 813CAA9FECBBC2A50F7A8B9F5737C9E7 10
+            String token = args[3];
+            int total = 0;
+            try {
+                total = Integer.parseInt(args[4]);
+            } catch (Exception e) {
+            }
+            String url = "rtsp://" + host + ":" + port + "/" + token;
+            AbstractClient client = new ClientPull();
+            for (int i = 0; i < total; i++) {
+                if (i == 0) {
+                    Thread.sleep(5000);
+                }
+                try {
+                    client.start(url);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
     }
 }

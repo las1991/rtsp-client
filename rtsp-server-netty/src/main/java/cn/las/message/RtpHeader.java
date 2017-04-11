@@ -5,13 +5,13 @@ package cn.las.message;
  */
 public class RtpHeader {
 
-    private int v=2;//0011 1111
-    private int p=0;//1101 1111
-    private int x=0;//1110 1111
-    private int cc=0;//1111 0000
+    private int v = 2;//0011 1111
+    private int p = 0;//1101 1111
+    private int x = 0;//1110 1111
+    private int cc = 0;//1111 0000
 
-    private int m=1;//0111 1111
-    private int pt=97;//1000 0000
+    private int m = 1;//0111 1111
+    private int pt = 97;//1000 0000
 
     /**
      * sequnce number
@@ -34,20 +34,33 @@ public class RtpHeader {
         this.ssrc = ssrc;
     }
 
-    public byte[] getRtpHeader(){
-        byte[] b=new byte[12];
-        b[0]=(byte)((v<<6)+(p<<5)+(x<<4)+(cc));
-        b[1]=(byte)((m<<7)+pt);
-        b[2]=(byte)(seq>>>8);
-        b[3]=(byte)seq;
-        b[4]=(byte)(timestamp>>>24);
-        b[5]=(byte)(timestamp>>>16);
-        b[6]=(byte)(timestamp>>>8);
-        b[7]=(byte)timestamp;
-        b[8]=(byte)(ssrc>>>24);
-        b[9]=(byte)(ssrc>>>16);
-        b[10]=(byte)(ssrc>>>8);
-        b[11]=(byte)ssrc;
+    public byte[] getRtpHeader() {
+        int length = 12 + this.cc * 4 + (this.x > 0 ? 4 : 0);
+        byte[] b = new byte[length];
+        b[0] = (byte) ((v << 6) + (p << 5) + (x << 4) + (cc));
+        b[1] = (byte) ((m << 7) + pt);
+        b[2] = (byte) (seq >>> 8);
+        b[3] = (byte) seq;
+        b[4] = (byte) (timestamp >>> 24);
+        b[5] = (byte) (timestamp >>> 16);
+        b[6] = (byte) (timestamp >>> 8);
+        b[7] = (byte) timestamp;
+        b[8] = (byte) (ssrc >>> 24);
+        b[9] = (byte) (ssrc >>> 16);
+        b[10] = (byte) (ssrc >>> 8);
+        b[11] = (byte) ssrc;
+        for (int i = 0; i < this.cc; i++) {
+            b[12 + 4 * i] = 0;
+            b[12 + 4 * i + 1] = 0;
+            b[12 + 4 * i + 2] = 0;
+            b[12 + 4 * i + 3] = 0;
+        }
+        if (this.x > 0) {
+            b[12 + this.cc * 4] = 0;
+            b[12 + this.cc * 4 + 1] = 0;
+            b[12 + this.cc * 4 + 2] = 0;
+            b[12 + this.cc * 4 + 3] = 0;
+        }
         return b;
     }
 

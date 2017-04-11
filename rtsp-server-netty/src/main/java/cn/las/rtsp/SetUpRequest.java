@@ -18,36 +18,31 @@ import java.util.concurrent.Callable;
  * @CreateDate：2016/3/22
  */
 public class SetUpRequest implements Callable<HttpRequest> {
-    private AbstractClient client;
-    private Integer trackID;
+    private AbstractClient.ClientSession client;
+    private String track;
 
-    public SetUpRequest(AbstractClient client, Integer trackID) {
+    public SetUpRequest(AbstractClient.ClientSession client, String track) {
         this.client = client;
-        this.trackID = trackID;
+        this.track = track;
     }
 
     @Override
     public HttpRequest call() throws Exception {
-        StringBuffer sb=new StringBuffer(client.getUrl());
-        sb.append("/trackID=");
-        sb.append(trackID);
+        StringBuffer sb = new StringBuffer(client.getUrl());
+        sb.append("/");
+        sb.append(track);
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.SETUP, sb.toString());
         request.headers().add(RtspHeaderNames.CSEQ, client.getCseq().toString());
-        if(StringUtils.isNotEmpty(client.getSession())){
-            request.headers().add(RtspHeaderNames.SESSION,client.getSession());
+        if (StringUtils.isNotEmpty(client.getSession())) {
+            request.headers().add(RtspHeaderNames.SESSION, client.getSession());
         }
-        request.headers().add(RtspHeaderNames.USER_AGENT,client.getUserAgent());
-        if(client instanceof ClientPush){
-            if(trackID==0){
-                request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;mode=receive;interleaved=0-1");
-            }else {
-                request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;mode=receive;interleaved=2-3");
-            }
-        }else {
-            request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;");//tcp
-            //udp
-            //request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP;unicast;client_port="+client.getChannel().localAddress().toString().split(":")[1]);
+        request.headers().add(RtspHeaderNames.USER_AGENT, client.getUserAgent());
+        int trackID = 0;
+        try {
+            trackID = Integer.parseInt(track.split("=")[1]);
+        } catch (Exception e) {
         }
+        request.headers().add(RtspHeaderNames.TRANSPORT, "RTP/AVP/TCP;unicast;interleaved=" + trackID * 2 + "-" + (trackID * 2 + 1));
         return request;
     }
 }

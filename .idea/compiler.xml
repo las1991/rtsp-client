@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AjcSettings">
+    <option name="ajcPath" value="$MAVEN_REPOSITORY$/org/aspectj/aspectjtools/1.8.6/aspectjtools-1.8.6.jar" />
+    <option name="delegateToJavac" value="true" />
+  </component>
+  <component name="CompilerConfiguration">
+    <option name="DEFAULT_COMPILER" value="ajc" />
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="examples" />
+        <module name="isoparser" />
+        <module name="muxer" />
+        <module name="rtsp-server-mina" />
+        <module name="rtsp-server-netty" />
+        <module name="sdp" />
+        <module name="streaming" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="examples" target="7" />
+      <module name="isoparser" target="1.5" />
+      <module name="mp4parser" target="1.7" />
+      <module name="muxer" target="7" />
+      <module name="rtsp-server" target="1.7" />
+      <module name="rtsp-server-mina" target="1.7" />
+      <module name="rtsp-server-netty" target="1.7" />
+      <module name="sdp" target="1.8" />
+      <module name="streaming" target="7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

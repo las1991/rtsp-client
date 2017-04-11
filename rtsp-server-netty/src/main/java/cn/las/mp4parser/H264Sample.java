@@ -1,6 +1,18 @@
 package cn.las.mp4parser;
 
+
+import cn.las.messageTmp.NaluHeader;
+import cn.las.stream.AudioStream;
+import cn.las.stream.MediaStream;
+import cn.las.stream.VideoStream;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.apache.log4j.Logger;
+import org.mp4parser.Container;
 import org.mp4parser.IsoFile;
+import org.mp4parser.boxes.iso14496.part12.FileTypeBox;
+import org.mp4parser.boxes.iso14496.part12.MovieBox;
+import org.mp4parser.boxes.iso14496.part12.MovieHeaderBox;
 import org.mp4parser.boxes.iso14496.part12.TrackBox;
 import org.mp4parser.boxes.iso14496.part15.AvcConfigurationBox;
 import org.mp4parser.muxer.FileRandomAccessSourceImpl;
@@ -12,64 +24,76 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by las on 2016/3/24.
  */
 public class H264Sample {
 
-    public final static ByteBuffer SEPARATOR = ByteBuffer.wrap(new byte[]{0, 0, 0, 1});
+    static Logger logger = Logger.getLogger(H264Sample.class);
 
-    public static IsoFile isoFile;
+    public static final String PUSH_FILE = "push.file";
 
-    public static SampleList samples;
+    private static IsoFile isoFile;
 
-    public static List<TrackBox> trackBoxes = new ArrayList<TrackBox>();
+    private static List<TrackBox> trackBoxes = new ArrayList<TrackBox>();
 
-    public static int lengthSize;
+    public static VideoStream videoStream = new VideoStream();
 
-    public static ByteBuffer sps;
+    public static AudioStream audioStream = new AudioStream();
 
-    public static ByteBuffer pps;
 
     static {
         try {
-//            String file=H264Sample.class.getClassLoader().getResource("").getPath()+"cab9a9bc-235b-433e-a033-fcf2b26220d5.mp4";
-            String file = H264Sample.class.getClassLoader().getResource("").getPath() + "test1.mp4";
+            String file = System.getProperty(PUSH_FILE, "/Users/las/Downloads/zhanlang.mp4");
+            System.out.println(file);
             isoFile = new IsoFile(file);
-            trackBoxes.add((TrackBox) Path.getPath(isoFile, "moov/trak/"));
-            long trackId = -1;
-            TrackBox trackBox = null;
+
+            MovieBox moov = Path.getPath(isoFile, MovieBox.TYPE);
+
+            List<TrackBox> traks = Path.getPaths((Container) moov, TrackBox.TYPE);
+
+            trackBoxes.addAll(traks);
+            TrackBox videoTrack = null;
+            long videoTrackId = -1;
+
+            TrackBox audioTrack = null;
+            long audioTrackId = -1;
             for (TrackBox _trackBox : trackBoxes) {
-                if (Path.getPath(_trackBox, "mdia/minf/stbl/stsd/avc1") != null) {
-                    trackId = _trackBox.getTrackHeaderBox().getTrackId();
-                    trackBox = _trackBox;
+                if (Path.getPath(_trackBox, "mdia/minf/vmhd") != null) {
+                    videoTrackId = _trackBox.getTrackHeaderBox().getTrackId();
+                    videoTrack = _trackBox;
+                    videoStream.setTimescale(videoTrack.getMediaBox().getMediaHeaderBox().getTimescale());
+                    videoStream.setDuration(videoTrack.getMediaBox().getMediaHeaderBox().getDuration() / videoTrack.getMediaBox().getMediaHeaderBox().getTimescale());
+                }
+                if (Path.getPath(_trackBox, "mdia/minf/smhd") != null) {
+                    audioTrackId = _trackBox.getTrackHeaderBox().getTrackId();
+                    audioTrack = _trackBox;
                 }
             }
-            samples = new SampleList(trackId, isoFile, new FileRandomAccessSourceImpl(
-                    new RandomAccessFile(file, "r")));
-            lengthSize = ((AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC")).getLengthSizeMinusOne() + 1;
-            sps = ((AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC")).getSequenceParameterSets().get(0);
-            pps = ((AvcConfigurationBox) Path.getPath(trackBox, "mdia/minf/stbl/stsd/avc1/avcC")).getPictureParameterSets().get(0);
+            videoStream.setSamples(new SampleList(videoTrackId, isoFile, new FileRandomAccessSourceImpl(
+                    new RandomAccessFile(file, "r"))));
+            videoStream.setFrame_rate(videoStream.getSamples().size() / videoStream.getDuration());
+
+            audioStream.setSamples(new SampleList(audioTrackId, isoFile, new FileRandomAccessSourceImpl(
+                    new RandomAccessFile(file, "r"))));
+
+            AvcConfigurationBox avcConfigurationBox = Path.getPath(videoTrack, "mdia/minf/stbl/stsd/avc1/avcC");
+            videoStream.setSampleLengthSize(avcConfigurationBox.getLengthSizeMinusOne() + 1);
+            videoStream.setSps(avcConfigurationBox.getSequenceParameterSets().get(0));
+            videoStream.setPps(avcConfigurationBox.getPictureParameterSets().get(0));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private AtomicInteger sampleIndex = new AtomicInteger(0);
-
-    public Sample getSample() {
-        Integer index;
-        if (sampleIndex.get() > samples.size()-1)
-            index = sampleIndex.getAndSet(0);
-        else
-            index = sampleIndex.getAndAdd(1);
-
-        if (index < samples.size()) {
-            return samples.get(index);
-        }
-        return null;
+    public static void main(String[] args) {
+        H264Sample sample = new H264Sample();
+        logger.info(videoStream.getSamples().size());
+        logger.info(videoStream.getDuration());
+        logger.info(videoStream.getTimescale());
+        logger.info(videoStream.getFrame_rate());
     }
+
 
 }

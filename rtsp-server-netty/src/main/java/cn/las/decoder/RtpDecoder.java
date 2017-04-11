@@ -1,6 +1,7 @@
 package cn.las.decoder;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.apache.log4j.Logger;
@@ -21,26 +22,25 @@ public class RtpDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> list) throws Exception {
-        ByteBuf byteBuf = in.copy();
-        byte[] req = new byte[byteBuf.readableBytes()];
-        byteBuf.readBytes(req);
-        if (req.length>0&&req[0] == DOLLA) {
-            Integer channel = new Byte(req[1]).intValue();
-            Integer size = new Integer(((req[2] & 0xFF) << 8) | ((req[3] & 0xFF))) + 4;
-            Integer sequence = new Integer(((req[6] & 0xFF) << 8) | ((req[7] & 0xFF)));
-            if(channel==0){
-                byte rtpHeader=req[16];
-                logger.debug(sequence + ":" + size);
-                logger.debug("nalu header: "+new Byte((byte) (rtpHeader >> 7)).intValue()+","+(rtpHeader >> 5)+","+(rtpHeader & 31));
-            }
 
-            if (in.readableBytes() >= size) {
-                byte[] cache = new byte[size];
-                in.readBytes(cache);
+        if (in.readableBytes() > 0 && in.readByte() == DOLLA) {
+            if (in.readableBytes() > 3) {
+                int channel = in.readByte();
+                int size = in.readUnsignedShort();
+                if (in.readableBytes() >= size) {
+                    ByteBuf rtp = in.readBytes(size);
+                    logger.debug("read rtp :" + rtp.readableBytes());
+                    rtp.release();
+                } else {
+                    in.readerIndex(in.readerIndex() - 4);
+                }
+            } else {
+                in.readerIndex(in.readerIndex() - 1);
             }
-        } else {
-            logger.debug(new String(req, "UTF-8"));
+        } else if (in.readableBytes() > 0) {
+            in.readerIndex(in.readerIndex() - 1);
             in.retain();
+            logger.debug(ByteBufUtil.prettyHexDump(in));
             ctx.fireChannelRead(in);
         }
     }

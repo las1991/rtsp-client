@@ -1,6 +1,7 @@
 package client;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
 import org.slf4j.Logger;
@@ -12,13 +13,13 @@ import org.slf4j.LoggerFactory;
  * @Author：andy
  * @CreateDate：2016/2/4
  */
-public class ResponseHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
+public class ResponseHandler extends ChannelInboundHandlerAdapter {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, FullHttpResponse  fullHttpResponse) throws Exception {
-        System.out.println("rep :"+fullHttpResponse.toString());
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println(msg.toString());
     }
 
     @Override

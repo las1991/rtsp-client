@@ -16,9 +16,9 @@ import java.util.concurrent.Callable;
  * @CreateDate：2016/3/22
  */
 public class DescribeRequest implements Callable<HttpRequest> {
-    private AbstractClient client;
+    private AbstractClient.ClientSession client;
 
-    public DescribeRequest(AbstractClient client) {
+    public DescribeRequest(AbstractClient.ClientSession client) {
         this.client = client;
     }
 

@@ -17,9 +17,9 @@ import java.util.concurrent.Callable;
  */
 public class OptionsRequest implements Callable<HttpRequest> {
 
-    private AbstractClient client;
+    private AbstractClient.ClientSession client;
 
-    public OptionsRequest(AbstractClient client) {
+    public OptionsRequest(AbstractClient.ClientSession client) {
         this.client = client;
     }
 
