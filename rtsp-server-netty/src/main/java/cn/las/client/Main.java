@@ -3,6 +3,7 @@ package cn.las.client;
 import cn.las.util.Md5Util;
 import org.apache.log4j.Logger;
 
+import javax.net.ssl.SSLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,7 +16,7 @@ import java.util.concurrent.Executors;
 public class Main {
     private static Logger logger = Logger.getLogger(Main.class);
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws Exception {
         if (args.length < 5) {
             logger.error("usage [action] [host] [port] [start] [end]");
             return;

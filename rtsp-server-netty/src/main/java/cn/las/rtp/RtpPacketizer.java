@@ -5,7 +5,9 @@ import cn.las.client.ClientPush;
 import cn.las.message.*;
 import cn.las.mp4parser.H264Sample;
 import cn.las.util.ByteUtil;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.mp4parser.muxer.Sample;
 import org.mp4parser.tools.IsoTypeReaderVariable;
 
@@ -22,41 +24,62 @@ public class RtpPacketizer {
 
     private final static int MTU = 1400;
 
-    public static List<RtpPackage> getRtpPackages(AbstractClient.ClientSession clientPush) {
+    public static List<RtpPackage> getVideoRtpPackages(AbstractClient.ClientSession clientPush) {
         Sample sample = clientPush.getVideoSample(H264Sample.videoStream);
         List<RtpPackage> packages = new ArrayList<>();
         if (sample == null) {
             return packages;
         }
 
-//        clientPush.setTimestamp(clientPush.getTimestamp() + H264Sample.videoStream.getTimescale() / H264Sample.videoStream.getFrame_rate());
         boolean hasSps = false;//type=7
         boolean hasPps = false;//type=8
-        ByteBuffer nal = sample.asByteBuffer();
-        while (nal.remaining() > 0) {
-            int length = (int) IsoTypeReaderVariable.read(nal, H264Sample.videoStream.getSampleLengthSize());
-            byte[] bytes = new byte[length];
-            nal.get(bytes, 0, length);
-            NaluHeader naluHeader = new NaluHeader((bytes[0] >> 7), (bytes[0] >> 5), (bytes[0] & 31));
-            if (naluHeader.getType() == 7) {
-                hasSps = true;
-            }
-            if (naluHeader.getType() == 8) {
-                hasPps = true;
-            }
-            if (naluHeader.getType() == 5) {
-                if (!hasPps) {
-                    byte[] b = H264Sample.videoStream.getPps().array();
-                    NaluHeader nh = new NaluHeader((b[0] >> 7), (b[0] >> 5), (b[0] & 31));
-                    packages.addAll(createPackages(b, clientPush, nh));
+        ByteBuf byteBuf = PooledByteBufAllocator.DEFAULT.buffer();
+        byteBuf.writeBytes(sample.asByteBuffer());
+        try {
+            while (byteBuf.readableBytes() > H264Sample.videoStream.getSampleLengthSize()) {
+                int length = 0;
+                switch (H264Sample.videoStream.getSampleLengthSize()) {
+                    case 1:
+                        length = byteBuf.readUnsignedByte();
+                        break;
+                    case 2:
+                        length = byteBuf.readUnsignedShort();
+                        break;
+                    case 3:
+                        length = byteBuf.readUnsignedMedium();
+                        break;
+                    case 4:
+                        length = byteBuf.readInt();
+                        break;
                 }
-                if (!hasSps) {
-                    byte[] b = H264Sample.videoStream.getSps().array();
-                    NaluHeader nh = new NaluHeader((b[0] >> 7), (b[0] >> 5), (b[0] & 31));
-                    packages.addAll(createPackages(b, clientPush, nh));
+                if (byteBuf.readableBytes() < length) {
+                    break;
                 }
+                byte[] bytes = new byte[length];
+                byteBuf.readBytes(bytes, 0, length);
+                NaluHeader naluHeader = new NaluHeader((bytes[0] >> 7), (bytes[0] >> 5), (bytes[0] & 31));
+                if (naluHeader.getType() == 7) {
+                    hasSps = true;
+                }
+                if (naluHeader.getType() == 8) {
+                    hasPps = true;
+                }
+                if (naluHeader.getType() == 5) {
+                    if (!hasPps) {
+                        byte[] b = H264Sample.videoStream.getPps().array();
+                        NaluHeader nh = new NaluHeader((b[0] >> 7), (b[0] >> 5), (b[0] & 31));
+                        packages.addAll(createPackages(b, clientPush, nh));
+                    }
+                    if (!hasSps) {
+                        byte[] b = H264Sample.videoStream.getSps().array();
+                        NaluHeader nh = new NaluHeader((b[0] >> 7), (b[0] >> 5), (b[0] & 31));
+                        packages.addAll(createPackages(b, clientPush, nh));
+                    }
+                }
+                packages.addAll(createPackages(bytes, clientPush, naluHeader));
             }
-            packages.addAll(createPackages(bytes, clientPush, naluHeader));
+        } finally {
+            byteBuf.release();
         }
         return packages;
     }
@@ -104,5 +127,10 @@ public class RtpPacketizer {
         clientPush.setSeq(seq);
         return packages;
     }
+
+    public static List<RtpPackage> getAudioRtpPackages(AbstractClient.ClientSession clientPush) {
+        return null;
+    }
+
 
 }

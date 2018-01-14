@@ -29,7 +29,9 @@ public class PlayRequest implements Callable<HttpRequest> {
         HttpMethod method = client.getType().equals(AbstractClient.ClientSession.Type.Push) ? RtspMethods.RECORD : RtspMethods.PLAY;
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, method, client.getUrl());
         request.headers().add(RtspHeaderNames.CSEQ, client.getCseq().toString());
-        request.headers().add(RtspHeaderNames.SESSION, client.getSession());
+        if (null != client.getSession()) {
+            request.headers().add(RtspHeaderNames.SESSION, client.getSession());
+        }
         request.headers().add(RtspHeaderNames.USER_AGENT, client.getUserAgent());
         request.headers().add(RtspHeaderNames.RANGE, "npt=0.000-");
         return request;

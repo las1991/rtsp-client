@@ -75,6 +75,8 @@ public abstract class AbstractClient implements Client {
 
     public static class ClientSession {
 
+        Logger logger = Logger.getLogger(this.getClass());
+
         public enum Type {
             Push, Pull;
         }
@@ -116,12 +118,9 @@ public abstract class AbstractClient implements Client {
             if (sampleIndex >= stream.getSamples().size()) {
                 sampleIndex = 0;
             }
-            if ((System.currentTimeMillis() - lastTimeStamp) > 100 / stream.getFrame_rate()) {
-                if (sampleIndex < stream.getSamples().size()) {
-                    lastTimeStamp = System.currentTimeMillis();
-                    timestamp = sampleIndex * (1000 / stream.getFrame_rate()) * 90;
-                    return stream.getSamples().get(sampleIndex++);
-                }
+            if (sampleIndex < stream.getSamples().size()) {
+                timestamp = sampleIndex * (1000 / stream.getFrame_rate()) * 90;
+                return stream.getSamples().get(sampleIndex++);
             }
             return null;
         }

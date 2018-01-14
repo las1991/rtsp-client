@@ -1,18 +1,15 @@
 package cn.las.mp4parser;
 
 
-import cn.las.messageTmp.NaluHeader;
 import cn.las.stream.AudioStream;
-import cn.las.stream.MediaStream;
 import cn.las.stream.VideoStream;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.log4j.Logger;
 import org.mp4parser.Container;
 import org.mp4parser.IsoFile;
-import org.mp4parser.boxes.iso14496.part12.FileTypeBox;
 import org.mp4parser.boxes.iso14496.part12.MovieBox;
-import org.mp4parser.boxes.iso14496.part12.MovieHeaderBox;
 import org.mp4parser.boxes.iso14496.part12.TrackBox;
 import org.mp4parser.boxes.iso14496.part15.AvcConfigurationBox;
 import org.mp4parser.muxer.FileRandomAccessSourceImpl;
@@ -45,7 +42,7 @@ public class H264Sample {
 
     static {
         try {
-            String file = System.getProperty(PUSH_FILE, "/Users/las/Downloads/zhanlang.mp4");
+            String file = System.getProperty(PUSH_FILE, "/Users/las/Downloads/test.mp4");
             System.out.println(file);
             isoFile = new IsoFile(file);
 
@@ -93,6 +90,15 @@ public class H264Sample {
         logger.info(videoStream.getDuration());
         logger.info(videoStream.getTimescale());
         logger.info(videoStream.getFrame_rate());
+        ByteBuf tmp = UnpooledByteBufAllocator.DEFAULT.buffer().writeBytes(audioStream.getSamples().get(0).asByteBuffer());
+        logger.info(ByteBufUtil.prettyHexDump(tmp));
+        tmp = UnpooledByteBufAllocator.DEFAULT.buffer().writeBytes(audioStream.getSamples().get(1).asByteBuffer());
+        logger.info(ByteBufUtil.prettyHexDump(tmp));
+        tmp = UnpooledByteBufAllocator.DEFAULT.buffer().writeBytes(audioStream.getSamples().get(2).asByteBuffer());
+        logger.info(ByteBufUtil.prettyHexDump(tmp));
+        tmp = UnpooledByteBufAllocator.DEFAULT.buffer().writeBytes(audioStream.getSamples().get(3).asByteBuffer());
+        logger.info(ByteBufUtil.prettyHexDump(tmp));
+
     }
 
 

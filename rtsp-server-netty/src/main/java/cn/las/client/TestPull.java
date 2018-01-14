@@ -6,7 +6,8 @@ package cn.las.client;
 public class TestPull {
     public static void main(String[] args) {
 //        System.setProperty("push.file", "/Users/las/Downloads/test.mp4");
-        String url = "rtsp://10.100.102.29:554/813CAA9FECBBC2A50F7A8B9F5737C9E7";
+//        String url = "rtsp://10.100.102.29:554/210360B871EECBD4D0AE1B9DCC24C568";
+        String url = "rtsp://127.0.0.1:5454/210360B871EECBD4D0AE1B9DCC24C568";
         try {
             AbstractClient client = new ClientPull();
             client.start(url);

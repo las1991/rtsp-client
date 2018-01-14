@@ -49,7 +49,7 @@ public final class BandWidth extends Field {
     private int value;
 
     BandWidth(String type, int value) {
-        Assert.assertNull("type may not be empty", type);
+        Assert.assertNotNull("type may not be empty", type);
         this.type = type;
         this.value = Math.max(0, value);
     }
