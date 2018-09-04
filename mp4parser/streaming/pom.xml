@@ -5,17 +5,12 @@
     <groupId>org.mp4parser</groupId>
     <artifactId>streaming</artifactId>
     <version>1.9.28-SNAPSHOT</version>
+
     <dependencies>
         <dependency>
             <groupId>org.mp4parser</groupId>
             <artifactId>isoparser</artifactId>
             <version>1.9.28-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mp4parser</groupId>
@@ -27,6 +22,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.20</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

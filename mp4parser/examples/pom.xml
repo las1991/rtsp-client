@@ -7,11 +7,7 @@
     <artifactId>examples</artifactId>
     <name>ISO Parser Examples</name>
     <version>1.9.28-SNAPSHOT</version>
-    <parent>
-        <groupId>com.darkmi</groupId>
-        <artifactId>mp4parser</artifactId>
-        <version>1.9.28-SNAPSHOT</version>
-    </parent>
+
     <dependencies>
         <dependency>
             <groupId>org.mp4parser</groupId>
