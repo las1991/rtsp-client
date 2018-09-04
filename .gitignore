@@ -1,16 +1,6 @@
 *.class
-
-# Package Files #
+**/.idea
 *.jar
 *.war
-*.ear
-.classpath
-.project
-.springBeans
-*/.settings/
-*/target/
-*/bin/
-*/logs/
-/logs
-/.settings
+**/target/
 *.iml
