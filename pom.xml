@@ -5,7 +5,6 @@
     <groupId>com.las</groupId>
     <artifactId>rtsp-server</artifactId>
     <version>1.0.0</version>
-    <name>RTSPServer Project</name>
     <packaging>pom</packaging>
 
     <modules>
