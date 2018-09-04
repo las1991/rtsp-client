@@ -8,8 +8,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.rtsp.RtspRequestEncoder;
-import io.netty.handler.codec.rtsp.RtspResponseDecoder;
+import io.netty.handler.codec.rtsp.RtspDecoder;
+import io.netty.handler.codec.rtsp.RtspEncoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
@@ -17,8 +17,6 @@ import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 import javax.net.ssl.SSLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 /**
@@ -55,8 +53,8 @@ public class ClientPull extends AbstractClient {
                 ChannelPipeline pipeline = ch.pipeline();
                 pipeline.addLast("ssl", new SslHandler(sslContext.newEngine(ch.alloc())));
                 pipeline.addLast("rtp-decoder", new RtpDecoder());
-                pipeline.addLast("rtsp-decoder", new RtspResponseDecoder());
-                pipeline.addLast("encoder", new RtspRequestEncoder());
+                pipeline.addLast("rtsp-decoder", new RtspDecoder());
+                pipeline.addLast("encoder", new RtspEncoder());
                 pipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
                 pipeline.addLast("chunk", new ChunkedWriteHandler());
                 pipeline.addLast("handler", new RtspClientHandler());
