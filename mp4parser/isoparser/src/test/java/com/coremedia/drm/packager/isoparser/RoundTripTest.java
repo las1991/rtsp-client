@@ -36,8 +36,8 @@ public class RoundTripTest extends TestCase {
         super.setUp();
         defaultTestFileDir = this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
 /*        Logger.getLogger("").setLevel(Level.ALL);
-    Handler[] handlers = Logger.getLogger("").getHandlers();
-    for (Handler handler : handlers) {
+    handler[] handlers = Logger.getLogger("").getHandlers();
+    for (handler handler : handlers) {
       handler.setLevel(Level.ALL);
     }*/
     }

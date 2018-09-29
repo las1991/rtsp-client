@@ -4,7 +4,8 @@ import cn.las.message.RtpPackage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version 1.0
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
  */
 public class RtpEncoder extends MessageToByteEncoder<RtpPackage> {
 
-    Logger logger = Logger.getLogger(this.getClass());
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     private final static byte DOLLA = 0x24;
 
     @Override

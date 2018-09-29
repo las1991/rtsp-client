@@ -97,7 +97,7 @@ public class HandlerBox extends AbstractFullBox {
     }
 
     public String getHumanReadableTrackType() {
-        return readableTypes.get(handlerType) != null ? readableTypes.get(handlerType) : "Unknown Handler Type";
+        return readableTypes.get(handlerType) != null ? readableTypes.get(handlerType) : "Unknown handler Type";
     }
 
     protected long getContentSize() {

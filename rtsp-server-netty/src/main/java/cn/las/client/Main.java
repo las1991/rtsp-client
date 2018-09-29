@@ -1,7 +1,8 @@
 package cn.las.client;
 
 import cn.las.util.Md5Util;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import java.util.concurrent.ExecutorService;
@@ -14,13 +15,14 @@ import java.util.concurrent.Executors;
  * @CreateDate：2016/3/22
  */
 public class Main {
-    private static Logger logger = Logger.getLogger(Main.class);
+    static Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) throws Exception {
         if (args.length < 5) {
             logger.error("usage [action] [host] [port] [start] [end]");
             return;
         }
+
 
 //        System.setProperty("io.netty.leakDetection.acquireAndReleaseOnly", "true");
 //        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);

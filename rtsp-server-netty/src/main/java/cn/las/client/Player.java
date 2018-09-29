@@ -2,7 +2,7 @@ package cn.las.client;
 
 import cn.las.client.handler.RtspClientHandler;
 import cn.las.decoder.RtpDecoder;
-import com.google.common.collect.Lists;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -10,40 +10,26 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.rtsp.RtspDecoder;
 import io.netty.handler.codec.rtsp.RtspEncoder;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.ssl.SslProvider;
-import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
 
-import javax.net.ssl.SSLException;
-import java.util.List;
+import java.util.Observable;
 
 /**
- * @version 1.0
- * @Description
- * @Author：andy
- * @CreateDate：2016/3/22
+ * @author las
+ * @date 18-9-29
  */
-public class ClientPull extends AbstractClient {
+public class Player extends Observable implements Client {
 
-    List<String> ciphers = Lists.newArrayList(
+    private final RtspSession session;
 
-//            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-//            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-            // GCM (Galois/Counter Mode) requires JDK 8.
-            "TLS_RSA_WITH_AES_128_GCM_SHA256"
-//            "TLS_RSA_WITH_AES_128_CBC_SHA256"
-    );
+    public Player(String url) {
+        this.session = new RtspSession(url);
+    }
 
-    SslContext sslContext = SslContextBuilder.forClient()
-            .sslProvider(SslProvider.OPENSSL)
-            .ciphers(ciphers)
-            .build();
+    @Override
+    public Client start(Bootstrap bootstrap) {
 
-    public ClientPull() throws SSLException {
-
+        return this;
     }
 
     @Override
@@ -52,12 +38,11 @@ public class ClientPull extends AbstractClient {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
-                pipeline.addLast("ssl", new SslHandler(sslContext.newEngine(ch.alloc())));
+//                pipeline.addLast("ssl", new SslHandler(sslContext.newEngine(ch.alloc())));
                 pipeline.addLast("rtp-decoder", new RtpDecoder());
                 pipeline.addLast("rtsp-decoder", new RtspDecoder());
                 pipeline.addLast("encoder", new RtspEncoder());
                 pipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
-                pipeline.addLast("chunk", new ChunkedWriteHandler());
                 pipeline.addLast(work, "handler", new RtspClientHandler());
             }
         };

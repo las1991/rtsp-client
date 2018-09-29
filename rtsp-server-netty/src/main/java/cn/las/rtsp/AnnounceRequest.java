@@ -52,7 +52,7 @@ public class AnnounceRequest implements Callable<HttpRequest> {
         request.headers().add(RtspHeaderNames.USER_AGENT, client.getUserAgent());
         request.headers().add(RtspHeaderNames.ACCEPT, "application/sdp");
         request.content().writeBytes(sdp.getBytes());
-        request.headers().add(RtspHeaderNames.CONTENT_LENGTH, request.content().readableBytes() + "");
+        request.headers().add(RtspHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
         return request;
     }
 

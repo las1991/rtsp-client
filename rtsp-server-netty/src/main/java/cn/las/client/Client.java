@@ -1,6 +1,8 @@
 package cn.las.client;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandler;
+import io.netty.util.concurrent.EventExecutorGroup;
 
 /**
  * @version 1.0
@@ -9,7 +11,7 @@ import io.netty.channel.ChannelHandler;
  * @CreateDate：2016/3/24
  */
 public interface Client {
-    public void start(String url) throws Exception;
+    Client start(Bootstrap bootstrap);
 
-    public ChannelHandler getHandler();
+    ChannelHandler getHandler(EventExecutorGroup work);
 }
