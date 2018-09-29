@@ -42,11 +42,11 @@ import static java.util.concurrent.TimeUnit.*;
  *     k=  (zero or one encryption key)
  *     a=  (zero or more session attribute lines)
  *     Zero or more media descriptions
- * <p>
+ *
  *   Time description
  *     t=  (one time the session is active)
  *     r=  (zero or more repeat times)
- * <p>
+ *
  *   Media description, if present
  *     m=  (one media name and transport address)
  *     i=  (zero or one media title)
@@ -213,7 +213,7 @@ public class SessionParser {
                 if (parts.length != 6) throw new SdpParseException("invalid origin line: " + line.substring(2));
                 OriginBuilder origin = OriginBuilder.create().setUsername(parts[0]);
                 long sessionId = NumberUtils.toLong(parts[1], -1);
-                if (sessionId < 0) throw new SdpParseException("invalid origin sessionId: " + parts[1]);
+//                if (sessionId < 0) throw new SdpParseException("invalid origin sessionId: " + parts[1]);
                 origin.setSessionId(sessionId);
                 long version = NumberUtils.toLong(parts[2], -1);
                 if (version < 0) throw new SdpParseException("invalid origin session version: " + parts[2]);
@@ -245,7 +245,8 @@ public class SessionParser {
                 builder.setSessionName(line.substring(2));
                 return next;
             }
-            throw new SdpParseException("invalid session description: expecting session name");
+            builder.setSessionName("default");
+            return next;
         }
 
         @Override
@@ -437,8 +438,12 @@ public class SessionParser {
             } else if (time != null) {
                 builder.addTimeDescription(time.build());
                 return next.parse(builder, line);
+            }else {
+                time=TimeBuilder.create();
+                builder.addTimeDescription(time.build());
+                return next.parse(builder, line);
             }
-            throw new SdpParseException("invalid session description: expecting time");
+
         }
 
         @Override

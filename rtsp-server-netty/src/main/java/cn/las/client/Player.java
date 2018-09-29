@@ -1,17 +1,22 @@
 package cn.las.client;
 
+import cn.las.client.handler.RtpHandler;
 import cn.las.client.handler.RtspClientHandler;
-import cn.las.decoder.RtpDecoder;
+import cn.las.decoder.RtpOverTcpDecoder;
+import cn.las.rtsp.OptionsRequest;
+import cn.las.ssl.SSL;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspDecoder;
 import io.netty.handler.codec.rtsp.RtspEncoder;
 import io.netty.util.concurrent.EventExecutorGroup;
 
+import java.io.IOException;
 import java.util.Observable;
 
 /**
@@ -22,14 +27,35 @@ public class Player extends Observable implements Client {
 
     private final RtspSession session;
 
+    private Channel channel;
+
     public Player(String url) {
         this.session = new RtspSession(url);
     }
 
     @Override
-    public Client start(Bootstrap bootstrap) {
-
+    public Client start(NioEventLoopGroup group, EventExecutorGroup workGroup) {
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(group).channel(NioSocketChannel.class).handler(getHandler(workGroup));
+        ChannelFuture future = bootstrap.connect(session.host, session.port);
+        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE).addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    doOption();
+                }
+            }
+        });
+        this.channel = future.channel();
+        if (session.port == 1554) {
+            channel.pipeline().addFirst("ssl", SSL.getSslHandler(channel.alloc()));
+        }
         return this;
+    }
+
+    @Override
+    public Channel channel() {
+        return channel;
     }
 
     @Override
@@ -38,14 +64,34 @@ public class Player extends Observable implements Client {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
-//                pipeline.addLast("ssl", new SslHandler(sslContext.newEngine(ch.alloc())));
-                pipeline.addLast("rtp-decoder", new RtpDecoder());
-                pipeline.addLast("rtsp-decoder", new RtspDecoder());
-                pipeline.addLast("encoder", new RtspEncoder());
+                pipeline.addLast("rtpOverTcpDecoder", new RtpOverTcpDecoder());
+                pipeline.addLast("rtpHandler", new RtpHandler(Player.this));
+
+                pipeline.addLast("rtspDecoder", new RtspDecoder());
+                pipeline.addLast("rtspEncoder", new RtspEncoder());
                 pipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
-                pipeline.addLast(work, "handler", new RtspClientHandler());
+                pipeline.addLast(work, "handler", new RtspClientHandler(Player.this));
             }
         };
     }
 
+
+    @Override
+    public RtspSession session() {
+        return this.session;
+    }
+
+    private void doOption() {
+        OptionsRequest request = new OptionsRequest(this.session);
+        HttpRequest req = request.call();
+        channel().writeAndFlush(req);
+    }
+
+    public void doPlay() {
+    }
+
+    @Override
+    public void close() throws IOException {
+        channel.close();
+    }
 }

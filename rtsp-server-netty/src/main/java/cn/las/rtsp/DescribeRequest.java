@@ -1,6 +1,6 @@
 package cn.las.rtsp;
 
-import cn.las.client.AbstractClient;
+import cn.las.client.RtspSession;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
@@ -16,19 +16,19 @@ import java.util.concurrent.Callable;
  * @CreateDate：2016/3/22
  */
 public class DescribeRequest implements Callable<HttpRequest> {
-    private AbstractClient.ClientSession client;
+    private RtspSession session;
 
-    public DescribeRequest(AbstractClient.ClientSession client) {
-        this.client = client;
+    public DescribeRequest(RtspSession session) {
+        this.session = session;
     }
 
     @Override
     public HttpRequest call() throws Exception {
-        DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.DESCRIBE, client.getUrl());
-        request.headers().add(RtspHeaderNames.CSEQ,client.getCseq().toString());
-        request.headers().add(RtspHeaderNames.USER_AGENT,client.getUserAgent());
+        DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.DESCRIBE, session.getUrl());
+        request.headers().add(RtspHeaderNames.CSEQ, session.getCseq());
+        request.headers().add(RtspHeaderNames.USER_AGENT, session.getUserAgent());
         request.headers().add(RtspHeaderNames.ACCEPT, "application/sdp");
-        return  request;
+        return request;
     }
 
     /**

@@ -1,6 +1,6 @@
 package cn.las.rtsp;
 
-import cn.las.client.AbstractClient;
+import cn.las.client.RtspSession;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
@@ -37,19 +37,19 @@ public class AnnounceRequest implements Callable<HttpRequest> {
      *
      */
 
-    private AbstractClient.ClientSession client;
+    private RtspSession session;
 
-    public AnnounceRequest(AbstractClient.ClientSession client) {
-        this.client = client;
+    public AnnounceRequest(RtspSession session) {
+        this.session = session;
     }
 
     @Override
     public HttpRequest call() throws Exception {
         SessionParser parser = new SessionParser();
-        client.setSdp(parser.parse(sdp));
-        DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.ANNOUNCE, client.getUrl());
-        request.headers().add(RtspHeaderNames.CSEQ, client.getCseq().toString());
-        request.headers().add(RtspHeaderNames.USER_AGENT, client.getUserAgent());
+        session.setSdp(parser.parse(sdp));
+        DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.ANNOUNCE, session.getUrl());
+        request.headers().add(RtspHeaderNames.CSEQ, session.getCseq());
+        request.headers().add(RtspHeaderNames.USER_AGENT, session.getUserAgent());
         request.headers().add(RtspHeaderNames.ACCEPT, "application/sdp");
         request.content().writeBytes(sdp.getBytes());
         request.headers().add(RtspHeaderNames.CONTENT_LENGTH, request.content().readableBytes());

@@ -1,18 +1,13 @@
 package cn.las.rtp;
 
-import cn.las.client.AbstractClient;
-import cn.las.client.ClientPush;
+import cn.las.client.RtspSession;
 import cn.las.message.*;
 import cn.las.mp4parser.H264Sample;
 import cn.las.util.ByteUtil;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.mp4parser.muxer.Sample;
-import org.mp4parser.tools.IsoTypeReaderVariable;
 
-
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,8 +19,8 @@ public class RtpPacketizer {
 
     private final static int MTU = 1400;
 
-    public static List<RtpPackage> getVideoRtpPackages(AbstractClient.ClientSession clientPush) {
-        Sample sample = clientPush.getVideoSample(H264Sample.videoStream);
+    public static List<RtpPackage> getVideoRtpPackages(RtspSession session) {
+        Sample sample = null;//session.getVideoSample(H264Sample.videoStream);
         List<RtpPackage> packages = new ArrayList<>();
         if (sample == null) {
             return packages;
@@ -68,15 +63,15 @@ public class RtpPacketizer {
                     if (!hasPps) {
                         byte[] b = H264Sample.videoStream.getPps().array();
                         NaluHeader nh = new NaluHeader((b[0] >> 7), (b[0] >> 5), (b[0] & 31));
-                        packages.addAll(createPackages(b, clientPush, nh));
+                        packages.addAll(createPackages(b, session, nh));
                     }
                     if (!hasSps) {
                         byte[] b = H264Sample.videoStream.getSps().array();
                         NaluHeader nh = new NaluHeader((b[0] >> 7), (b[0] >> 5), (b[0] & 31));
-                        packages.addAll(createPackages(b, clientPush, nh));
+                        packages.addAll(createPackages(b, session, nh));
                     }
                 }
-                packages.addAll(createPackages(bytes, clientPush, naluHeader));
+                packages.addAll(createPackages(bytes, session, naluHeader));
             }
         } finally {
             byteBuf.release();
@@ -84,10 +79,10 @@ public class RtpPacketizer {
         return packages;
     }
 
-    private static List<RtpPackage> createPackages(byte[] bytes, AbstractClient.ClientSession clientPush, NaluHeader naluHeader) {
+    private static List<RtpPackage> createPackages(byte[] bytes, RtspSession clientPush, NaluHeader naluHeader) {
         List<RtpPackage> packages = new ArrayList<>();
         int seq = clientPush.getSeq();
-        long timestamp = clientPush.getTimestamp();
+        long timestamp = 0;//clientPush.getTimestamp();
         int length = bytes.length;
         if ((length - 1) > MTU) {
             int k = 0, last = 0;
@@ -128,7 +123,7 @@ public class RtpPacketizer {
         return packages;
     }
 
-    public static List<RtpPackage> getAudioRtpPackages(AbstractClient.ClientSession clientPush) {
+    public static List<RtpPackage> getAudioRtpPackages(RtspSession clientPush) {
         return null;
     }
 

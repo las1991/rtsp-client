@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.GregorianCalendar;
 import java.util.UUID;
 
 /**
@@ -20,7 +21,7 @@ import java.util.UUID;
 public class RtspTranslator {
     static Logger LOGGER = LoggerFactory.getLogger(RtspTranslator.class);
 
-    private static EventLoopGroup GROUP;
+    private static NioEventLoopGroup GROUP;
     private static EventExecutorGroup WORK;
     private static Bootstrap BOOTSTRAP;
 
@@ -60,14 +61,14 @@ public class RtspTranslator {
         init();
 
         Player player = new Player(source);
-        player.start(BOOTSTRAP);
-        
+        player.start(GROUP, WORK);
+
 
         String uuid = UUID.randomUUID().toString();
         for (int i = 0; i < count; i++) {
             String url = "rtsp://" + host + ":" + port + "/" + Md5Util.md5(i + uuid);
             try {
-                new Recorder(url, player).start(BOOTSTRAP);
+                new Recorder(url, player).start(GROUP, WORK);
             } catch (Exception e) {
                 e.printStackTrace();
             }

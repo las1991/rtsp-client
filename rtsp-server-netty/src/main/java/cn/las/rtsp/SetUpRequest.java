@@ -1,13 +1,11 @@
 package cn.las.rtsp;
 
-import cn.las.client.AbstractClient;
-import cn.las.client.ClientPush;
+import cn.las.client.RtspSession;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspHeaderNames;
 import io.netty.handler.codec.rtsp.RtspMethods;
 import io.netty.handler.codec.rtsp.RtspVersions;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.concurrent.Callable;
 
@@ -18,25 +16,23 @@ import java.util.concurrent.Callable;
  * @CreateDate：2016/3/22
  */
 public class SetUpRequest implements Callable<HttpRequest> {
-    private AbstractClient.ClientSession client;
+    private RtspSession session;
     private String track;
 
-    public SetUpRequest(AbstractClient.ClientSession client, String track) {
-        this.client = client;
+    public SetUpRequest(RtspSession session, String track) {
+        this.session = session;
         this.track = track;
     }
 
     @Override
-    public HttpRequest call() throws Exception {
-        StringBuffer sb = new StringBuffer(client.getUrl());
+    public HttpRequest call() {
+        StringBuffer sb = new StringBuffer(session.getUrl());
         sb.append("/");
         sb.append(track);
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.SETUP, sb.toString());
-        request.headers().add(RtspHeaderNames.CSEQ, client.getCseq().toString());
-        if (StringUtils.isNotEmpty(client.getSession())) {
-            request.headers().add(RtspHeaderNames.SESSION, client.getSession());
-        }
-        request.headers().add(RtspHeaderNames.USER_AGENT, client.getUserAgent());
+        request.headers().add(RtspHeaderNames.CSEQ, session.getCseq());
+
+        request.headers().add(RtspHeaderNames.USER_AGENT, session.getUserAgent());
         int trackID = 0;
         try {
             trackID = Integer.parseInt(track.split("=")[1]);
