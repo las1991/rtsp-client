@@ -14,7 +14,6 @@ public class RtpHandler extends SimpleChannelInboundHandler<FramingRtpPacket> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FramingRtpPacket msg) throws Exception {
-        player.hasChanged();
-        player.notifyObservers(msg.retain());
+        player.onFramingRtpPacket(msg);
     }
 }

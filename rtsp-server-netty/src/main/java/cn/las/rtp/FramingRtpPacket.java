@@ -1,6 +1,7 @@
 package cn.las.rtp;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.DefaultByteBufHolder;
 
 /**
@@ -18,12 +19,33 @@ public class FramingRtpPacket extends DefaultByteBufHolder implements RtpChannel
         this.length = length;
     }
 
+    private FramingRtpPacket(ByteBuf data, FramingRtpPacket that) {
+        super(data);
+        this.channel = that.channel;
+        this.length = that.length;
+    }
+
     public int getChannel() {
         return channel;
     }
 
     public int getLength() {
         return length;
+    }
+
+    @Override
+    public FramingRtpPacket copy() {
+        return new FramingRtpPacket(content().copy(), this);
+    }
+
+    @Override
+    public FramingRtpPacket duplicate() {
+        return new FramingRtpPacket(content().duplicate(), this);
+    }
+
+    @Override
+    public FramingRtpPacket retain() {
+        return new FramingRtpPacket(content().retain(), this);
     }
 
     @Override

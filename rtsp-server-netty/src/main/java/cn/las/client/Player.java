@@ -3,9 +3,12 @@ package cn.las.client;
 import cn.las.client.handler.RtpHandler;
 import cn.las.client.handler.RtspClientHandler;
 import cn.las.decoder.RtpOverTcpDecoder;
+import cn.las.rtp.FramingRtpPacket;
 import cn.las.rtsp.OptionsRequest;
 import cn.las.ssl.SSL;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufHolder;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -38,6 +41,11 @@ public class Player extends Observable implements Client {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group).channel(NioSocketChannel.class).handler(getHandler(workGroup));
         ChannelFuture future = bootstrap.connect(session.host, session.port);
+        this.channel = future.channel();
+        if (session.port == 1554) {
+            channel.pipeline().addFirst("ssl", SSL.getSslHandler(channel.alloc()));
+        }
+
         future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
@@ -46,10 +54,6 @@ public class Player extends Observable implements Client {
                 }
             }
         });
-        this.channel = future.channel();
-        if (session.port == 1554) {
-            channel.pipeline().addFirst("ssl", SSL.getSslHandler(channel.alloc()));
-        }
         return this;
     }
 
@@ -81,7 +85,8 @@ public class Player extends Observable implements Client {
         return this.session;
     }
 
-    private void doOption() {
+    @Override
+    public void doOption() {
         OptionsRequest request = new OptionsRequest(this.session);
         HttpRequest req = request.call();
         channel().writeAndFlush(req);
@@ -93,5 +98,14 @@ public class Player extends Observable implements Client {
     @Override
     public void close() throws IOException {
         channel.close();
+    }
+
+    public void onFramingRtpPacket(FramingRtpPacket rtpPacket) {
+        try {
+            this.setChanged();
+            this.notifyObservers(rtpPacket.retain());
+        } finally {
+            rtpPacket.retain();
+        }
     }
 }

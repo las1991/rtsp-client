@@ -78,10 +78,10 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse response) throws Exception {
 
         if (logger.isTraceEnabled()) {
-            logger.trace("response {}", response);
+            logger.trace("{} response {}", client.session().getToken(), response);
         }
         if (!response.status().equals(HttpResponseStatus.OK)) {
-            logger.error("bad response {}", response);
+            logger.error("{} bad response {}", client.session().getToken(), response);
             ctx.close();
             return;
         }
@@ -96,13 +96,14 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                     session.setState(RtspState.DESCRIBE);
                 }
                 if (client instanceof Recorder) {
-                    request = new AnnounceRequest(session);
+                    request = new AnnounceRequest(session, ((Recorder) client).getPlayer().session().getSdp().toString());
+                    client.session().setSdp(((Recorder) client).getPlayer().session().getSdp());
                     session.setState(RtspState.ANNOUNCE);
                 }
                 break;
             case ANNOUNCE:
             case DESCRIBE:
-                if (client instanceof Player){
+                if (client instanceof Player) {
                     ByteBuf buf = response.content();
                     byte[] tmp = new byte[buf.readableBytes()];
                     buf.readBytes(tmp);
@@ -123,13 +124,12 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                                 .matcher(md.getAttribute("control").getValue());
                         if (matcher.matches()) {
                             String name = matcher.group(1);
-                            request = new SetUpRequest(session, "streamid="+name);
+                            request = new SetUpRequest(session, "streamid=" + name);
                         }
                         break;
                     }
                 }
-                int next = setupStreams + 1;
-                if (next == sdp.getMediaDescriptions().length) {
+                if (setupStreams == sdp.getMediaDescriptions().length) {
                     if (client instanceof Player) {
                         request = new PlayRequest(session);
                         session.setState(RtspState.PLAY);
@@ -138,6 +138,8 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                         request = new RecodeRequest(session);
                         session.setState(RtspState.RECORDE);
                     }
+                } else {
+                    session.setSetupStreams(setupStreams + 1);
                 }
                 break;
             case PLAY:
@@ -166,7 +168,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
             req.headers().add(RtspHeaderNames.SESSION, session.getSessionId());
         }
         if (logger.isTraceEnabled()) {
-            logger.trace("request {}", req);
+            logger.trace("{} request {}", client.session().getToken(), req);
         }
         ctx.writeAndFlush(req);
     }

@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
  */
 public class AnnounceRequest implements Callable<HttpRequest> {
 
-    private final static String sdp = "v=0\n" +
+    private final static String SDP = "v=0\n" +
             "o=- 956018329 956018329 IN IP4 127.0.0.1\n" +
             "s=liveSengledIPC\n" +
             "i=LIVE555 Streaming M\n" +
@@ -32,26 +32,26 @@ public class AnnounceRequest implements Callable<HttpRequest> {
             "m=audio 0 RTP/AVP 8\n" +
             "a=3GPP-Adaptation-Support:1\n" +
             "a=ptime:20\n" +
-            "a=control:/stream=2\n";
+            "a=control:/streamid=2\n";
     /**
      *
      */
 
     private RtspSession session;
+    private String sdp;
 
-    public AnnounceRequest(RtspSession session) {
+    public AnnounceRequest(RtspSession session, String sdp) {
         this.session = session;
+        this.sdp = sdp;
     }
 
     @Override
     public HttpRequest call() throws Exception {
-        SessionParser parser = new SessionParser();
-        session.setSdp(parser.parse(sdp));
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(RtspVersions.RTSP_1_0, RtspMethods.ANNOUNCE, session.getUrl());
         request.headers().add(RtspHeaderNames.CSEQ, session.getCseq());
         request.headers().add(RtspHeaderNames.USER_AGENT, session.getUserAgent());
         request.headers().add(RtspHeaderNames.ACCEPT, "application/sdp");
-        request.content().writeBytes(sdp.getBytes());
+        request.content().writeBytes(this.sdp.getBytes());
         request.headers().add(RtspHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
         return request;
     }

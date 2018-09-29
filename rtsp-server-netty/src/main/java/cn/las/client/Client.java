@@ -21,4 +21,6 @@ public interface Client extends Closeable {
     ChannelHandler getHandler(EventExecutorGroup work);
 
     RtspSession session();
+
+    void doOption();
 }

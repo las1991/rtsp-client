@@ -18,6 +18,7 @@ public class RtspSession {
 
     protected String host;
     protected int port;
+    protected String token;
     protected String url;
     private RtspState state = RtspState.OPTIONS;
     protected String sessionId;
@@ -34,6 +35,7 @@ public class RtspSession {
             URI uri = new URI(this.url);
             this.host = uri.getHost();
             this.port = uri.getPort();
+            this.token = uri.getPath();
         } catch (URISyntaxException e) {
         }
     }
@@ -44,6 +46,10 @@ public class RtspSession {
 
     public int getPort() {
         return port;
+    }
+
+    public String getToken() {
+        return token;
     }
 
     public String getUrl() {

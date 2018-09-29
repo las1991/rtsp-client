@@ -33,13 +33,7 @@ public class RtspTranslator {
     }
 
     public static void main(String[] args) {
-        try {
-
-        } finally {
-            GROUP.shutdownGracefully();
-            WORK.shutdownGracefully();
-        }
-        if (args.length < 5) {
+        if (args.length < 4) {
             LOGGER.error("usage [source url] [host] [port] [count]");
             return;
         }
@@ -63,11 +57,20 @@ public class RtspTranslator {
         Player player = new Player(source);
         player.start(GROUP, WORK);
 
-
+        while (player.session().getState() != RtspState.PLAY) {
+            try {
+                Thread.sleep(1000);
+                LOGGER.info("wait player");
+            } catch (InterruptedException e) {
+            }
+        }
+        LOGGER.info("player ready!!! ");
         String uuid = UUID.randomUUID().toString();
         for (int i = 0; i < count; i++) {
-            String url = "rtsp://" + host + ":" + port + "/" + Md5Util.md5(i + uuid);
+            final String token = Md5Util.md5(i + uuid);
+            String url = "rtsp://" + host + ":" + port + "/" + token;
             try {
+                LOGGER.info("start recoder {}-{}", i, token);
                 new Recorder(url, player).start(GROUP, WORK);
             } catch (Exception e) {
                 e.printStackTrace();
