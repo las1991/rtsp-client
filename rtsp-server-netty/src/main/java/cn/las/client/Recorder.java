@@ -5,6 +5,7 @@ import cn.las.encoder.RtpOverTcpEncoder;
 import cn.las.rtp.FramingRtpPacket;
 import cn.las.rtsp.OptionsRequest;
 import cn.las.ssl.SSL;
+import cn.las.traffic.Traffic;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -15,6 +16,8 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspDecoder;
 import io.netty.handler.codec.rtsp.RtspEncoder;
 import io.netty.util.concurrent.EventExecutorGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -24,6 +27,8 @@ import java.util.Observer;
  * @date 18-9-29
  */
 public class Recorder implements Client, Observer {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private final RtspSession session;
     private final Player player;
@@ -38,19 +43,29 @@ public class Recorder implements Client, Observer {
     public Client start(NioEventLoopGroup group, EventExecutorGroup workGroup) {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group).channel(NioSocketChannel.class).handler(getHandler(workGroup));
+
+        bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 10 * 64 * 1024);
+        bootstrap.option(ChannelOption.SO_SNDBUF, 1048576);
+        bootstrap.option(ChannelOption.SO_RCVBUF, 1048576);
+//        bootstrap.option(ChannelOption.TCP_NODELAY, true);
+
         ChannelFuture future = bootstrap.connect(session.host, session.port);
         this.channel = future.channel();
         if (session.port == 1554 || session.port == 1443) {
             channel.pipeline().addFirst("ssl", SSL.getSslHandler(channel.alloc()));
         }
-        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    doOption();
-                }
-            }
-        });
+        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+                .addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception {
+                        if (future.isSuccess()) {
+                            doOption();
+                        } else {
+
+                        }
+                    }
+                });
 
         return this;
     }
@@ -70,6 +85,7 @@ public class Recorder implements Client, Observer {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
+                pipeline.addLast(Traffic.globalTrafficShapingHandler(work));
 //                pipeline.addLast("idle", new IdleStateHandler(0, 50, 0, TimeUnit.MILLISECONDS));
                 pipeline.addLast("rtpOverTcpEncoder", new RtpOverTcpEncoder());
                 pipeline.addLast("rtspDecoder", new RtspDecoder());
@@ -90,18 +106,17 @@ public class Recorder implements Client, Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof Player && arg instanceof FramingRtpPacket) {
             FramingRtpPacket packet = (FramingRtpPacket) arg;
-            onRtp(packet.duplicate().retain());
+            onRtp(packet);
         }
     }
 
     private void onRtp(FramingRtpPacket packet) {
         if (writeable()) {
-            channel.eventLoop().submit(new Runnable() {
-                @Override
-                public void run() {
-                    channel.writeAndFlush(packet);
-                }
-            });
+            channel.writeAndFlush(packet.duplicate().retain());
+        } else {
+//            channel.flush();
+//            channel.writeAndFlush(packet.duplicate().retain());
+//            logger.error("{} can't write", session.getToken());
         }
     }
 
@@ -117,11 +132,15 @@ public class Recorder implements Client, Observer {
     }
 
     public void doRecoder() {
+        logger.info("{} started", session.getToken());
         player.addObserver(this);
     }
 
     @Override
     public void close() {
-        channel.close();
+        if (channel.isOpen()) {
+            logger.info("close {}-{}", session.getToken(), channel);
+            channel.close();
+        }
     }
 }

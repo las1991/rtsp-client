@@ -34,11 +34,6 @@ public class FramingRtpPacket extends DefaultByteBufHolder implements RtpChannel
     }
 
     @Override
-    public FramingRtpPacket copy() {
-        return new FramingRtpPacket(content().copy(), this);
-    }
-
-    @Override
     public FramingRtpPacket duplicate() {
         return new FramingRtpPacket(content().duplicate(), this);
     }

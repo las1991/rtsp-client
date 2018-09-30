@@ -6,9 +6,8 @@ import cn.las.decoder.RtpOverTcpDecoder;
 import cn.las.rtp.FramingRtpPacket;
 import cn.las.rtsp.OptionsRequest;
 import cn.las.ssl.SSL;
+import cn.las.traffic.Traffic;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufHolder;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -18,8 +17,9 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.rtsp.RtspDecoder;
 import io.netty.handler.codec.rtsp.RtspEncoder;
 import io.netty.util.concurrent.EventExecutorGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Observable;
 
 /**
@@ -27,6 +27,8 @@ import java.util.Observable;
  * @date 18-9-29
  */
 public class Player extends Observable implements Client {
+
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     private final RtspSession session;
 
@@ -46,14 +48,16 @@ public class Player extends Observable implements Client {
             channel.pipeline().addFirst("ssl", SSL.getSslHandler(channel.alloc()));
         }
 
-        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    doOption();
-                }
-            }
-        });
+        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+                .addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception {
+                        if (future.isSuccess()) {
+                            doOption();
+                        }
+                    }
+                });
         return this;
     }
 
@@ -68,6 +72,7 @@ public class Player extends Observable implements Client {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
+                pipeline.addLast(Traffic.globalTrafficShapingHandler(work));
                 pipeline.addLast("rtpOverTcpDecoder", new RtpOverTcpDecoder());
                 pipeline.addLast("rtpHandler", new RtpHandler(Player.this));
 
@@ -96,16 +101,16 @@ public class Player extends Observable implements Client {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         channel.close();
     }
 
     public void onFramingRtpPacket(FramingRtpPacket rtpPacket) {
         try {
             this.setChanged();
-            this.notifyObservers(rtpPacket.retain());
+            this.notifyObservers(rtpPacket.duplicate().retain());
         } finally {
-            rtpPacket.retain();
+            rtpPacket.release();
         }
     }
 }

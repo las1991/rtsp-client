@@ -53,7 +53,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
                     break;
                 case WRITER_IDLE:
                     if (idleEvt.isFirst()) {
-                        logger.warn("write idle");
+                        logger.warn("{} write idle", client.session().getToken());
                     } else {
                         logger.trace("write idle");
                     }
@@ -176,6 +176,7 @@ public class RtspClientHandler extends SimpleChannelInboundHandler<FullHttpRespo
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("{}", cause.getMessage(), cause);
+        client.close();
     }
 
 }
