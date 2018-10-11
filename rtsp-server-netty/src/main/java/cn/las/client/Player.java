@@ -3,6 +3,8 @@ package cn.las.client;
 import cn.las.client.handler.RtpHandler;
 import cn.las.client.handler.RtspClientHandler;
 import cn.las.decoder.RtpOverTcpDecoder;
+import cn.las.observer.AbstractObservable;
+import cn.las.observer.Observable;
 import cn.las.rtp.FramingRtpPacket;
 import cn.las.rtsp.OptionsRequest;
 import cn.las.ssl.SSL;
@@ -20,19 +22,20 @@ import io.netty.util.concurrent.EventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Observable;
 
 /**
  * @author las
  * @date 18-9-29
  */
-public class Player extends Observable implements Client {
+public class Player extends AbstractObservable implements Client {
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
     private final RtspSession session;
 
     private Channel channel;
+
+    private long lastLogTime;
 
     public Player(String url) {
         this.session = new RtspSession(url);
@@ -106,11 +109,16 @@ public class Player extends Observable implements Client {
     }
 
     public void onFramingRtpPacket(FramingRtpPacket rtpPacket) {
+        long start = System.currentTimeMillis();
         try {
-            this.setChanged();
             this.notifyObservers(rtpPacket.duplicate().retain());
         } finally {
             rtpPacket.release();
+            if (System.currentTimeMillis() - lastLogTime >= 5000) {
+                logger.info("rtp {} cost {}ms", rtpPacket.getLength(), System.currentTimeMillis() - start);
+                lastLogTime = System.currentTimeMillis();
+            }
         }
+
     }
 }

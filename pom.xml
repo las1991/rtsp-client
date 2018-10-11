@@ -9,13 +9,11 @@
 
     <modules>
         <module>rtsp-server-netty</module>
-        <module>mp4parser</module>
         <module>sdp</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mp4parser.version>1.9.28-SNAPSHOT</mp4parser.version>
     </properties>
 
 

@@ -2,6 +2,8 @@ package cn.las.client;
 
 import cn.las.client.handler.RtspClientHandler;
 import cn.las.encoder.RtpOverTcpEncoder;
+import cn.las.observer.Observable;
+import cn.las.observer.Observer;
 import cn.las.rtp.FramingRtpPacket;
 import cn.las.rtsp.OptionsRequest;
 import cn.las.ssl.SSL;
@@ -19,8 +21,6 @@ import io.netty.util.concurrent.EventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * @author las
@@ -34,6 +34,8 @@ public class Recorder implements Client, Observer {
     private final Player player;
     private Channel channel;
 
+    private ChannelPipeline pipeline;
+
     public Recorder(String url, Player player) {
         session = new RtspSession(url);
         this.player = player;
@@ -44,13 +46,14 @@ public class Recorder implements Client, Observer {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group).channel(NioSocketChannel.class).handler(getHandler(workGroup));
 
-        bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 10 * 64 * 1024);
-        bootstrap.option(ChannelOption.SO_SNDBUF, 1048576);
-        bootstrap.option(ChannelOption.SO_RCVBUF, 1048576);
-//        bootstrap.option(ChannelOption.TCP_NODELAY, true);
+//        bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 10 * 64 * 1024);
+//        bootstrap.option(ChannelOption.SO_SNDBUF, 1048576);
+//        bootstrap.option(ChannelOption.SO_RCVBUF, 1048576);
+        bootstrap.option(ChannelOption.TCP_NODELAY, true);
 
         ChannelFuture future = bootstrap.connect(session.host, session.port);
         this.channel = future.channel();
+        this.pipeline = channel.pipeline();
         if (session.port == 1554 || session.port == 1443) {
             channel.pipeline().addFirst("ssl", SSL.getSslHandler(channel.alloc()));
         }
@@ -112,11 +115,11 @@ public class Recorder implements Client, Observer {
 
     private void onRtp(FramingRtpPacket packet) {
         if (writeable()) {
-            channel.writeAndFlush(packet.duplicate().retain());
+            pipeline.writeAndFlush(packet.duplicate().retain(),new DefaultChannelPromise(channel));
         } else {
 //            channel.flush();
 //            channel.writeAndFlush(packet.duplicate().retain());
-//            logger.error("{} can't write", session.getToken());
+            logger.error("{} can't write", session.getToken());
         }
     }
 

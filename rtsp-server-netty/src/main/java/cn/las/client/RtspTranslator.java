@@ -4,7 +4,6 @@ import cn.las.traffic.Traffic;
 import cn.las.util.Md5Util;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
 import org.apache.commons.lang.StringUtils;
@@ -23,13 +22,26 @@ public class RtspTranslator {
     static Logger LOGGER = LoggerFactory.getLogger(RtspTranslator.class);
 
     private static NioEventLoopGroup GROUP;
+    private static NioEventLoopGroup GROUP1;
     private static EventExecutorGroup WORK;
     private static Bootstrap BOOTSTRAP;
 
+    static {
+        /**
+         * -Dio.netty.allocator.type=pooled
+         * -Dio.netty.noPreferDirect=false
+         * -Dio.netty.leakDetection.level=PARANOID
+         */
+        System.setProperty("io.netty.allocator.type","pooled");
+        System.setProperty("io.netty.noPreferDirect","false");
+        System.setProperty("io.netty.leakDetection.level","PARANOID");
+    }
+
 
     private static void init() {
-        GROUP = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2 + 1, new DefaultThreadFactory("client-io-work", false));
-        WORK = new DefaultEventExecutorGroup(Runtime.getRuntime().availableProcessors() * 2 + 1, new DefaultThreadFactory("client-handler-work", false));
+        GROUP = new NioEventLoopGroup(1, new DefaultThreadFactory("client-io-work", false));
+        GROUP1 = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), new DefaultThreadFactory("client1-io-work", false));
+//        WORK = new DefaultEventExecutorGroup(Runtime.getRuntime().availableProcessors() * 2 + 1, new DefaultThreadFactory("client-handler-work", false));
         BOOTSTRAP = new Bootstrap();
         Traffic.globalTrafficShapingHandler(GROUP);
     }
@@ -40,6 +52,7 @@ public class RtspTranslator {
     }
 
     public static void main(String[] args) {
+
         if (args.length < 4) {
             LOGGER.error("usage [source url] [host] [port] [count]");
             return;
@@ -86,7 +99,7 @@ public class RtspTranslator {
                 try {
                     LOGGER.info("start recoder {}-{}", i, token);
                     Recorder recorder = new Recorder(url, player);
-                    recorder.start(GROUP, WORK);
+                    recorder.start(GROUP1, WORK);
                     recorders.add(recorder);
                 } catch (Exception e) {
                     LOGGER.error("start recoder {}-{} fail by {}", i, token, e.getMessage());

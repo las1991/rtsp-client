@@ -1,11 +1,11 @@
 package cn.las.client;
 
+import cn.las.observer.Observable;
+import cn.las.observer.Observer;
 import cn.las.rtp.FramingRtpPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Observable;
-import java.util.Observer;
 
 public class PlayerLogger implements Observer {
 
