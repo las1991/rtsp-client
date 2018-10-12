@@ -30,11 +30,16 @@
             <!--<classifier>linux-x86_64</classifier>-->
         </dependency>
 
+        <dependency>
+            <groupId>org.squirrelframework</groupId>
+            <artifactId>squirrel-foundation</artifactId>
+            <version>0.3.8</version>
+        </dependency>
+
         <!-- logging begin -->
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.9</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -86,9 +91,9 @@
                 <version>1.2.3</version>
             </dependency>
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.17</version>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.25</version>
             </dependency>
 
             <dependency>
@@ -102,6 +107,12 @@
                 <version>1.1.33.Fork25</version>
                 <classifier>${os.detected.classifier}</classifier>
                 <!--<classifier>linux-x86_64</classifier>-->
+            </dependency>
+
+            <dependency>
+                <groupId>org.squirrelframework</groupId>
+                <artifactId>squirrel-foundation</artifactId>
+                <version>0.3.8</version>
             </dependency>
         </dependencies>
 
