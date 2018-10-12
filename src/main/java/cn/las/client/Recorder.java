@@ -47,7 +47,7 @@ public class Recorder implements Client, Observer {
         bootstrap.group(group).channel(NioSocketChannel.class).handler(getHandler(workGroup));
 
 //        bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 10 * 64 * 1024);
-//        bootstrap.option(ChannelOption.SO_SNDBUF, 1048576);
+        bootstrap.option(ChannelOption.SO_SNDBUF, 1048576);
 //        bootstrap.option(ChannelOption.SO_RCVBUF, 1048576);
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
 
