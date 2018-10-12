@@ -27,11 +27,6 @@ public class RtspTranslator {
     private static Bootstrap BOOTSTRAP;
 
     static {
-        /**
-         * -Dio.netty.allocator.type=pooled
-         * -Dio.netty.noPreferDirect=false
-         * -Dio.netty.leakDetection.level=PARANOID
-         */
         System.setProperty("io.netty.allocator.type", "pooled");
         System.setProperty("io.netty.noPreferDirect", "false");
         System.setProperty("io.netty.leakDetection.level", "PARANOID");
