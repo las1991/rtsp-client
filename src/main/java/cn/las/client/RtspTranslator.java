@@ -6,7 +6,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +32,9 @@ public class RtspTranslator {
          * -Dio.netty.noPreferDirect=false
          * -Dio.netty.leakDetection.level=PARANOID
          */
-        System.setProperty("io.netty.allocator.type","pooled");
-        System.setProperty("io.netty.noPreferDirect","false");
-        System.setProperty("io.netty.leakDetection.level","PARANOID");
+        System.setProperty("io.netty.allocator.type", "pooled");
+        System.setProperty("io.netty.noPreferDirect", "false");
+        System.setProperty("io.netty.leakDetection.level", "PARANOID");
     }
 
 
