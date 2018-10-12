@@ -1,4 +1,4 @@
-rtspserver
+rtsp-client
 ==========
 
-a rtsp server.
+a rtsp client.

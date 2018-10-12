@@ -4,7 +4,6 @@ import cn.las.client.handler.RtpHandler;
 import cn.las.client.handler.RtspClientHandler;
 import cn.las.decoder.RtpOverTcpDecoder;
 import cn.las.observer.AbstractObservable;
-import cn.las.observer.Observable;
 import cn.las.rtp.FramingRtpPacket;
 import cn.las.rtsp.OptionsRequest;
 import cn.las.ssl.SSL;
