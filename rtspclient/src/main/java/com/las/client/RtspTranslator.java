@@ -34,7 +34,7 @@ public class RtspTranslator {
 
 
     private static void init() {
-        GROUP = new NioEventLoopGroup(1, new DefaultThreadFactory("client-io-work", false));
+        GROUP = new NioEventLoopGroup(1, new DefaultThreadFactory("client-io-work", false, Thread.MAX_PRIORITY));
         GROUP1 = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), new DefaultThreadFactory("client1-io-work", false));
 //        WORK = new DefaultEventExecutorGroup(Runtime.getRuntime().availableProcessors() * 2 + 1, new DefaultThreadFactory("client-handler-work", false));
         BOOTSTRAP = new Bootstrap();

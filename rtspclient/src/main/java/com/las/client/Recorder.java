@@ -46,7 +46,7 @@ public class Recorder implements Client, Observer {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group).channel(NioSocketChannel.class).handler(getHandler(workGroup));
 
-//        bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 10 * 64 * 1024);
+        bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 10 * 64 * 1024);
         bootstrap.option(ChannelOption.SO_SNDBUF, 1048576);
 //        bootstrap.option(ChannelOption.SO_RCVBUF, 1048576);
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
@@ -115,10 +115,23 @@ public class Recorder implements Client, Observer {
 
     private void onRtp(FramingRtpPacket packet) {
         if (writeable()) {
-            pipeline.writeAndFlush(packet.duplicate().retain(),new DefaultChannelPromise(channel));
+            FramingRtpPacket framing = packet.duplicate().retain();
+            channel.eventLoop().execute(new Runnable() {
+                @Override
+                public void run() {
+                    ChannelFuture future = pipeline.writeAndFlush(framing);
+                    future.addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            if (!future.isSuccess()) {
+                                logger.error("{} write error!", session.getToken());
+                                future.channel().close();
+                            }
+                        }
+                    });
+                }
+            });
         } else {
-//            channel.flush();
-//            channel.writeAndFlush(packet.duplicate().retain());
             logger.error("{} can't write", session.getToken());
         }
     }
