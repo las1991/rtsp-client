@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-28
  */
 public class RtpOverTcpDecoder extends ByteToMessageDecoder {

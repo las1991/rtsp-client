@@ -11,7 +11,7 @@ import io.netty.handler.ssl.SslProvider;
 import java.util.List;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-29
  */
 public class SSL {

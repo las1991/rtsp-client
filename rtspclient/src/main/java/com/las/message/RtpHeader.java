@@ -1,7 +1,7 @@
 package com.las.message;
 
 /**
- * Created by cn.las on 2016/3/24.
+ * Created by las on 2016/3/24.
  */
 public class RtpHeader {
 

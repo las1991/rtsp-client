@@ -1,8 +1,7 @@
-package cn.las.client.handler;
+package com.las.client.handler;
 
-import cn.las.client.Player;
-import cn.las.rtp.FramingRtpPacket;
-import cn.las.rtp.InterleavedRtpPacket;
+import com.las.client.Player;
+import com.las.rtp.InterleavedRtpPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 

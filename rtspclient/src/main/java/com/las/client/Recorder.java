@@ -2,8 +2,6 @@ package com.las.client;
 
 import com.las.client.handler.RtspClientHandler;
 import com.las.encoder.RtpOverTcpEncoder;
-import com.las.observer.Observable;
-import com.las.observer.Observer;
 import com.las.rtp.FramingRtpPacket;
 import com.las.rtsp.OptionsRequest;
 import com.las.ssl.SSL;
@@ -21,9 +19,12 @@ import io.netty.util.concurrent.EventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Observable;
+import java.util.Observer;
+
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-29
  */
 public class Recorder implements Client, Observer {
@@ -159,4 +160,5 @@ public class Recorder implements Client, Observer {
             channel.close();
         }
     }
+
 }

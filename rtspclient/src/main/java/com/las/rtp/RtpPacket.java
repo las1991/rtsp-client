@@ -1,4 +1,4 @@
-package cn.las.rtp;
+package com.las.rtp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;

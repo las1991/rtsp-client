@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.DefaultByteBufHolder;
 
 /**
- * Created by cn.las on 2017/2/24.
+ * Created by las on 2017/2/24.
  */
 public class NaluHeader extends DefaultByteBufHolder {
 

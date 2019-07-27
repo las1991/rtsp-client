@@ -1,7 +1,7 @@
 package com.las.util;
 
 /**
- * Created by cn.las on 2016/3/25.
+ * Created by las on 2016/3/25.
  */
 public class ByteUtil {
     /**

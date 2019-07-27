@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-30
  */
 public class GlbalTrafficShapingWithLogHandler extends GlobalTrafficShapingHandler {

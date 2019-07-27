@@ -1,7 +1,7 @@
 package com.las.observer;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-10-11
  */
 public interface Observable {

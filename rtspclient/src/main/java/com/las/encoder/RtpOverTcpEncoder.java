@@ -6,7 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-26
  */
 public class RtpOverTcpEncoder extends MessageToByteEncoder<FramingRtpPacket> {

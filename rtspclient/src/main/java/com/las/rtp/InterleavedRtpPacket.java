@@ -1,4 +1,4 @@
-package cn.las.rtp;
+package com.las.rtp;
 
 /**
  * @author las

@@ -8,7 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-29
  */
 public class RtspSession {

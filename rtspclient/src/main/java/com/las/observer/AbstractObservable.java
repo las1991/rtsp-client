@@ -3,7 +3,7 @@ package com.las.observer;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-10-11
  */
 public abstract class AbstractObservable implements Observable {

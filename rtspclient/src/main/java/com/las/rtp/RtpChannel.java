@@ -1,7 +1,7 @@
 package com.las.rtp;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-21
  */
 public interface RtpChannel {

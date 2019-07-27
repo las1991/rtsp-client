@@ -3,7 +3,7 @@ package com.las.client;
 import io.netty.channel.nio.NioEventLoopGroup;
 
 /**
- * Created by cn.las on 2017/4/10.
+ * Created by las on 2017/4/10.
  */
 public class TestPull {
 

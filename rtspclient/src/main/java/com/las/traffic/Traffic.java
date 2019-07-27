@@ -6,7 +6,7 @@ import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-30
  */
 public class Traffic {

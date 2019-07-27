@@ -7,19 +7,19 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 /**
- * Created by cn.las on 2017/6/6.
+ * Created by las on 2017/6/6.
  */
 public class H264Encoder {
 
     public static void main(String[] args) {
         try {
-            RandomAccessFile srcFile = new RandomAccessFile(new File("/Users/cn.las/Desktop/yuanshi.h264"), "r");
+            RandomAccessFile srcFile = new RandomAccessFile(new File("/Users/las/Desktop/yuanshi.h264"), "r");
             FileChannel srcFileChannel = srcFile.getChannel();
             ByteBuffer src = ByteBuffer.allocate((int) srcFile.length());
             srcFileChannel.read(src);
             src.flip();
             srcFileChannel.close();
-            RandomAccessFile dstFile = new RandomAccessFile(new File("/Users/cn.las/Desktop/dst.h264"), "rw");
+            RandomAccessFile dstFile = new RandomAccessFile(new File("/Users/las/Desktop/dst.h264"), "rw");
             FileChannel dstFileChannel = dstFile.getChannel();
             ByteBuffer dst = test(src);
             dstFileChannel.write(dst);

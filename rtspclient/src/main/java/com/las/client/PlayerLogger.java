@@ -1,7 +1,7 @@
-package cn.las.client;
+package com.las.client;
 
-import cn.las.rtp.FramingRtpPacket;
-import cn.las.rtp.InterleavedRtpPacket;
+import com.las.rtp.FramingRtpPacket;
+import com.las.rtp.InterleavedRtpPacket;
 import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

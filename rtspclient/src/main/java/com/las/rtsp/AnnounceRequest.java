@@ -10,7 +10,7 @@ import io.netty.handler.codec.rtsp.RtspVersions;
 import java.util.concurrent.Callable;
 
 /**
- * Created by cn.las on 2016/3/26.
+ * Created by las on 2016/3/26.
  */
 public class AnnounceRequest implements Callable<HttpRequest> {
 

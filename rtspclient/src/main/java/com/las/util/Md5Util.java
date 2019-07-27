@@ -3,7 +3,7 @@ package com.las.util;
 import java.security.MessageDigest;
 
 /**
- * Created by cn.las on 2017/1/11.
+ * Created by las on 2017/1/11.
  */
 public class Md5Util {
     public static String md5(String source) {

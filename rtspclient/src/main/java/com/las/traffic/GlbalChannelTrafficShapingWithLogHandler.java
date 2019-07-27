@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-30
  */
 public class GlbalChannelTrafficShapingWithLogHandler extends GlobalChannelTrafficShapingHandler {

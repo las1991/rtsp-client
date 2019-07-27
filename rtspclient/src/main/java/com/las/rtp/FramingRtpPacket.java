@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.DefaultByteBufHolder;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-27
  */
 public class FramingRtpPacket extends DefaultByteBufHolder implements RtpChannel {

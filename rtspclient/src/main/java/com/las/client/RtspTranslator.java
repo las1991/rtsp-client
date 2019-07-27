@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * @author cn.las
+ * @author las
  * @date 18-9-29
  */
 public class RtspTranslator {
