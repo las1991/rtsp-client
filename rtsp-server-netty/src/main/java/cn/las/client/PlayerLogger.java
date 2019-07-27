@@ -1,6 +1,8 @@
 package cn.las.client;
 
 import cn.las.rtp.FramingRtpPacket;
+import cn.las.rtp.InterleavedRtpPacket;
+import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,13 @@ public class PlayerLogger implements Observer {
         if (o instanceof Player && arg instanceof FramingRtpPacket) {
             FramingRtpPacket rtpPacket = (FramingRtpPacket) arg;
             logger.trace("{}", rtpPacket);
+        } else if (o instanceof Player && arg instanceof InterleavedRtpPacket) {
+            InterleavedRtpPacket rtpPacket = (InterleavedRtpPacket) arg;
+            ByteBuf byteBuf = rtpPacket.content();
+            byte octet = byteBuf.readByte();
+            int nal_unit_type = octet & 0x1F;
+
+            logger.info("{} nal type :{}", rtpPacket.header(), nal_unit_type);
         }
     }
 }

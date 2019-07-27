@@ -17,10 +17,10 @@ public class TestPull {
          * 150KB/s rtsp://52.81.104.103:554/5511B7ADDCBB5C7FF62AFBA84D727F40
          */
         try {
-            String url = "rtsp://52.81.104.103:554/15B20416DDEEE1BC5AFE7564E75D4A00";
+            String url = "rtsp://52.82.59.252:554/aaa";
             Player player = new Player(url);
             PlayerLogger playerLogger = new PlayerLogger(player);
-            player.start(group, null);
+            player.start(group, group);
 
             player.channel().closeFuture().sync();
         } catch (InterruptedException e) {

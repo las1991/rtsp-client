@@ -1,9 +1,12 @@
 package cn.las.client;
 
-import cn.las.client.handler.RtpHandler;
+import cn.las.client.handler.FramingRtpPacketHandler;
+import cn.las.client.handler.InterleavedRtpPacketHandler;
 import cn.las.client.handler.RtspClientHandler;
+import cn.las.decoder.InterleavedRtpDecoder;
 import cn.las.decoder.RtpOverTcpDecoder;
 import cn.las.rtp.FramingRtpPacket;
+import cn.las.rtp.InterleavedRtpPacket;
 import cn.las.rtsp.OptionsRequest;
 import cn.las.ssl.SSL;
 import cn.las.traffic.Traffic;
@@ -74,7 +77,9 @@ public class Player extends Observable implements Client {
                 ChannelPipeline pipeline = ch.pipeline();
                 pipeline.addLast(Traffic.globalTrafficShapingHandler(work));
                 pipeline.addLast("rtpOverTcpDecoder", new RtpOverTcpDecoder());
-                pipeline.addLast("rtpHandler", new RtpHandler(Player.this));
+                pipeline.addLast("InterleavedRtpDecoder", new InterleavedRtpDecoder());
+                pipeline.addLast("rtpHandler", new FramingRtpPacketHandler(Player.this));
+                pipeline.addLast("InterleavedRtpPacketHandler", new InterleavedRtpPacketHandler(Player.this));
 
                 pipeline.addLast("rtspDecoder", new RtspDecoder());
                 pipeline.addLast("rtspEncoder", new RtspEncoder());
@@ -106,6 +111,15 @@ public class Player extends Observable implements Client {
     }
 
     public void onFramingRtpPacket(FramingRtpPacket rtpPacket) {
+        try {
+            this.setChanged();
+            this.notifyObservers(rtpPacket.duplicate().retain());
+        } finally {
+            rtpPacket.release();
+        }
+    }
+
+    public void onInterleavedRtpPacket(InterleavedRtpPacket rtpPacket) {
         try {
             this.setChanged();
             this.notifyObservers(rtpPacket.duplicate().retain());

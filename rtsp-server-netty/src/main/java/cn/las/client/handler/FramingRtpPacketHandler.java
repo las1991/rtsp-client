@@ -5,10 +5,10 @@ import cn.las.rtp.FramingRtpPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-public class RtpHandler extends SimpleChannelInboundHandler<FramingRtpPacket> {
+public class FramingRtpPacketHandler extends SimpleChannelInboundHandler<FramingRtpPacket> {
     private final Player player;
 
-    public RtpHandler(Player player) {
+    public FramingRtpPacketHandler(Player player) {
         this.player = player;
     }
 

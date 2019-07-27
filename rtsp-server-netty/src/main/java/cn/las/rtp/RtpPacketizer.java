@@ -93,16 +93,16 @@ public class RtpPacketizer {
                 RtpBody rtpBody = new RtpBody();
                 FuHeader fuHeader;
                 FuIndicator fuIndicator = new FuIndicator(naluHeader.getF(), naluHeader.getNri(), 28);
-                RtpHeader rtpHeader;
+                cn.las.message.RtpHeader rtpHeader;
                 if (t < k) {
-                    rtpHeader = new RtpHeader(2, 0, 1, 0, 0, 97,
+                    rtpHeader = new cn.las.message.RtpHeader(2, 0, 1, 0, 0, 97,
                             seq++, timestamp, ByteUtil.htonl(10));
                     rtpBody.setData(Arrays.copyOfRange(bytes, 1 + t * MTU, 1 + t * MTU + MTU));
                     if (t == 0) fuHeader = new FuHeader(0, 0, 1, naluHeader.getType());
                     else fuHeader = new FuHeader(0, 0, 0, naluHeader.getType());
                 } else {
                     fuHeader = new FuHeader(1, 0, 0, naluHeader.getType());
-                    rtpHeader = new RtpHeader(2, 0, 1, 0, 1, 97,
+                    rtpHeader = new cn.las.message.RtpHeader(2, 0, 1, 0, 1, 97,
                             seq++, timestamp, ByteUtil.htonl(10));
                     rtpBody.setData(Arrays.copyOfRange(bytes, 1 + t * MTU, 1 + t * MTU + last));
                 }
@@ -112,7 +112,7 @@ public class RtpPacketizer {
                 t++;
             }
         } else {
-            RtpHeader rtpHeader = new RtpHeader(2, 0, 0, 0, 1, 97,
+            cn.las.message.RtpHeader rtpHeader = new cn.las.message.RtpHeader(2, 0, 0, 0, 1, 97,
                     seq++, timestamp, ByteUtil.htonl(10));
             RtpBody rtpBody = new RtpBody();
             rtpBody.setNaluHeader(naluHeader);
